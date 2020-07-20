@@ -9,8 +9,16 @@ class BlackButton extends StatefulWidget {
   ///按钮点击事件
   final Function onClickListener;
 
+  final bool isStroke;
+
+  final bool isGrey;
+
   BlackButton(
-      {Key key, this.text, this.onClickListener})
+      {Key key,
+      this.text,
+      this.onClickListener,
+      this.isStroke = false,
+      this.isGrey = false})
       : super(key: key);
 
   @override
@@ -26,11 +34,20 @@ class _BlackButtonState extends State<BlackButton> {
         width: context.getSrnW() - 40,
         height: 50,
         alignment: Alignment.center,
-        decoration: BoxDecoration(
-            color: Color(0xff393649), borderRadius: BorderRadius.circular(5)),
+        decoration: widget.isStroke
+            ? BoxDecoration(
+                border: Border.all(color: Color(0xff393649), width: 1),
+                borderRadius: BorderRadius.circular(5))
+            : BoxDecoration(
+                color: widget.isGrey ? Config.BTN_ENABLE_FALSE : Color(0xff393649),
+                borderRadius: BorderRadius.circular(5)),
         child: Text(
           widget.text,
-          style: TextStyle(fontSize: 16, color: Colors.white),
+          style: TextStyle(
+              fontSize: 16,
+              color: widget.isStroke
+                  ? Color(0xff393649)
+                  : Colors.white),
         ),
       ),
     );

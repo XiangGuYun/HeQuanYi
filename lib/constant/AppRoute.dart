@@ -78,4 +78,16 @@ class AppRoute {
   
   /// 消息中心页
   static const String MESSAGE_CENTER_PAGE = '/message_center';
+
+  /// 城市列表页
+  static const String CITY_LIST_PAGE = '/city_list';
+  
+  /// 权益详情页
+  static const String RIGHT_DETAIL_PAGE = '/right_detail';
+  
+  /// 权益分类页
+  static const String RIGHT_CLASS_PAGE = '/right_class';
+  
+  /// 权益支付页
+  static const String RIGHT_PAY_PAGE = '/right_pay';
 }

@@ -29,12 +29,14 @@ class City {
   String cityId;
   String cname;
   String firstCode;
+  bool isFirstLetter = false;
 
   City({
       this.provinceId, 
       this.pname, 
       this.cityId, 
-      this.cname, 
+      this.cname,
+      this.isFirstLetter = false,
       this.firstCode});
 
   City.fromJson(dynamic json) {

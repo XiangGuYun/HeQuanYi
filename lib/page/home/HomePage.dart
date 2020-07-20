@@ -9,9 +9,11 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:wobei/bean/Banner.dart';
 import 'package:wobei/bean/BannerData.dart';
 import 'package:wobei/bean/BannerData1.dart';
+import 'package:wobei/bean/EnterprisePrefectureHomePageData.dart';
 import 'package:wobei/bean/HomeIcon.dart';
 import 'package:wobei/bean/HomeIconData.dart';
 import 'package:wobei/bean/HomeLabel.dart';
+import 'package:wobei/bean/HomeLabelData.dart';
 import 'package:wobei/bean/Location.dart';
 import 'package:wobei/bean/RightClassData.dart';
 import 'package:wobei/bean/SearchWord.dart';
@@ -25,6 +27,7 @@ import 'package:wobei/my_lib/utils/FileUtils.dart';
 import 'package:wobei/plugin/AmapPlugin.dart';
 import 'package:wobei/plugin/LogPlugin.dart';
 import 'package:wobei/widget/VipPriceText.dart';
+import 'file:///D:/hequanyi/flutter_app/lib/widget/right_item/home/FreeItem.dart';
 
 import '../../my_lib/extension/BaseExtension.dart';
 
@@ -49,10 +52,10 @@ class _AppState extends State<HomePage>
   List<BannerData1> bannerList = [];
 
   /// 主页标签列表
-  List<Widget> homeIconList = [];
+  List<HomeIconData> homeIconList = [];
 
   /// 专区列表
-  List<Widget> areaList = [];
+  List<HomeLabelData> areaList = [];
 
   /// 用于控制网络加载动画的全局键
   var keyLoading = GlobalKey<FrameAnimationImageState>();
@@ -99,7 +102,7 @@ class _AppState extends State<HomePage>
     doLocateAndRenderAreaList();
     renderBanner();
     renderHomeIcon();
-    Req.getKeyword((SearchWord data){
+    Req.getKeyword((SearchWord data) {
       setState(() {
         textSuggestSearch = data.suggestWord;
         recommendWords = data.recommendWords;
@@ -229,7 +232,9 @@ class _AppState extends State<HomePage>
               color: Config.BLACK_393649,
               fontSize: 16,
               fontWeight: FontWeight.w600),
-        ),
+        ).setGestureDetector(onTap: () {
+          Navigator.of(context).pushNamed(AppRoute.CITY_LIST_PAGE);
+        }),
         SizedBox(
           width: 20,
         ),
@@ -259,7 +264,8 @@ class _AppState extends State<HomePage>
             ],
           ),
         ).setGestureDetector(onTap: () {
-          Navigator.of(context).pushNamed(AppRoute.SEARCH_PAGE, arguments: recommendWords);
+          Navigator.of(context)
+              .pushNamed(AppRoute.SEARCH_PAGE, arguments: recommendWords);
         }).setExpanded(1)
       ],
     ).setSize(double.infinity, 30);
@@ -273,14 +279,35 @@ class _AppState extends State<HomePage>
       key: UniqueKey(),
       itemBuilder: (BuildContext context, int index) {
         return CachedNetworkImage(
-          placeholder:(ctx, url) => Image.asset(Config.BANNER_COVER),
+          placeholder: (ctx, url) => Image.asset(Config.BANNER_COVER),
           imageUrl: bannerList[index].url,
           fit: BoxFit.cover,
           fadeOutDuration: Duration(milliseconds: 10),
           fadeInDuration: Duration(milliseconds: 300),
           width: context.getSrnW() - 40,
           height: 167.5,
-        );
+        ).setGestureDetector(onTap: () {
+          switch (bannerList[index].jumpType) {
+            //1.静态 2.H5 3.权益 4.会员购买页
+            case '1':
+            case '2':
+              if (bannerList[index].jumpUrl.isNotEmpty) {
+                Navigator.of(context).pushNamed(AppRoute.WEB_PAGE,
+                    arguments: bannerList[index].jumpUrl);
+              }
+              break;
+          }
+//          when (data[it].jumpType) {
+//            //1.静态 2.H5 3.权益 4.会员购买页
+//            "1", "2" -> if (data[it].jumpUrl.isNotEmpty()) HeBeiHtmlActivity.start(act, data[it].jumpUrl)
+//          "3" -> goTo<RightDetailActivity>("id" to data[it].itemId.s)
+//          "4" -> if (!(SPUtils.getSP(act, "vip", false) as Boolean)) {
+//          goTo<BuyVipActivity>()
+//          } else {
+//          goTo<BuyVipActivity>(BuyVipActivity.IS_RENEW to true, BuyVipActivity.VALIDITY to SPUtils.getSP(act, "date", "").s)
+//          }
+//        }
+        });
       },
       itemCount: bannerList.length,
       pagination: SwiperCustomPagination(
@@ -337,25 +364,134 @@ class _AppState extends State<HomePage>
   /// 获取副标签栏
   ///---------------------------------------------------------------------------
   Widget getSubBar() {
-    return Row(children: homeIconList)
-        .setSizedBox(height: 52, width: double.infinity);
+    return ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: homeIconList.length,
+        itemBuilder: (ctx, i) {
+          return Row(
+            children: <Widget>[
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  CachedNetworkImage(
+                    placeholder: (ctx, url) => Image.asset(Config.ICON_COVER),
+                    imageUrl: homeIconList[i].iconImg,
+                    fit: BoxFit.cover,
+                    fadeOutDuration: Duration(milliseconds: 10),
+                    fadeInDuration: Duration(milliseconds: 10),
+                    width: 54.5,
+                    height: 34,
+                  ).setClipRRect(17),
+                  Text(
+                    homeIconList[i].name,
+                    style: TextStyle(fontSize: 12, color: "#ff393649".color()),
+                  ),
+                ],
+              ).setSizedBox(width: 54.5),
+              SizedBox(
+                width: i == homeIconList.length - 1
+                    ? 0
+                    : (context.getSrnW() - (54.5 * homeIconList.length) - 40) /
+                        (homeIconList.length - 1),
+              ),
+            ],
+          );
+        }).setSizedBox(height: 52, width: double.infinity);
   }
 
   ///---------------------------------------------------------------------------
   /// 获取专区列表
   ///---------------------------------------------------------------------------
   Widget getAreaList() {
-    return ListView(
-      shrinkWrap: true, //解决无限高度问题
-      physics: NeverScrollableScrollPhysics(), //禁用滑动事件
-      children: areaList,
-    );
+    return ListView.builder(
+        shrinkWrap: true, //解决无限高度问题
+        physics: NeverScrollableScrollPhysics(), //禁用滑动事件
+        itemCount: areaList.length,
+        itemBuilder: (ctx, i) {
+          return Column(
+            children: <Widget>[
+              SizedBox(
+                height: i == 0 ? 0 : 30,
+              ),
+              Row(
+                children: <Widget>[
+                  Text(
+                    areaList[i].name,
+                    style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: Config.BLACK_393649),
+                  ),
+                  SizedBox(
+                    width: 1,
+                  ).setExpanded(1),
+                  Text(
+                    "进入专区",
+                    style: TextStyle(fontSize: 12, color: "#ffa5a3ac".color()),
+                  ),
+                  Image.asset(
+                    Config.DETAIL_LIGHT,
+                    width: 11,
+                    height: 11,
+                    fit: BoxFit.cover,
+                  )
+                ],
+              ).setPadding1(left: 20, right: 20),
+              SizedBox(
+                height: 16,
+              ),
+              Container(
+                height: 173, //注意这里必须制定ListView高度，否则无法显示
+                child: ListView.builder(
+                    physics: BouncingScrollPhysics(),
+                    scrollDirection: Axis.horizontal,
+                    itemCount: areaList[i].pageVO.results.length,
+                    itemBuilder: (BuildContext ctx, int index) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Row(
+                            children: <Widget>[
+                              SizedBox(
+                                width: index == 0 ? 20 : 12,
+                              ),
+                              CachedNetworkImage(
+                                imageUrl:
+                                    areaList[i].pageVO.results[index].logo,
+                                width: (ctx.getSrnW() - 52) / 2,
+                                height: 121,
+                                fit: BoxFit.cover,
+                                placeholder: (ctx, url) => Image.asset(
+                                  Config.RIGHT_COVER,
+                                  width: (context.getSrnW() - 52) / 2,
+                                  height: 121,
+                                  fit: BoxFit.fill,
+                                ),
+                                fadeOutDuration: Duration(milliseconds: 50),
+                              ).setClipRRect(4.0),
+                              SizedBox(
+                                width: index ==
+                                        areaList[i].pageVO.results.length - 1
+                                    ? 20
+                                    : 0,
+                              ),
+                            ],
+                          ),
+                          getAreaListItem(
+                              areaList[i].pageVO.results[index], index == 0)
+                        ],
+                      );
+                    }),
+              )
+            ],
+          );
+        });
   }
 
   ///---------------------------------------------------------------------------
   /// 获取专区列表中的权益列表
   ///---------------------------------------------------------------------------
-  List<Widget> getRightList(List<Results> results) {
+  List<Widget> getRightList(List<Result> results) {
     List<Widget> list = [];
     results.asMap().forEach((i, item) {
       list.add(Row(
@@ -392,86 +528,15 @@ class _AppState extends State<HomePage>
       setState(() {
         userCity = location.cityName.replaceAll('市', '');
       });
-      Req.getHomeLabel().then((response) {
-        var homeLabel = HomeLabel.map(json.decode(response.toString()));
-        if (homeLabel.success) {
-          List<Widget> list = [];
-          homeLabel.data.asMap().forEach((i, data) {
-            list.add(Column(
-              children: <Widget>[
-                SizedBox(
-                  height: i == 0 ? 0 : 30,
-                ),
-                Row(
-                  children: <Widget>[
-                    Text(
-                      data.name,
-                      style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: Config.BLACK_393649),
-                    ),
-                    SizedBox(
-                      width: 1,
-                    ).setExpanded(1),
-                    Text(
-                      "进入专区",
-                      style:
-                          TextStyle(fontSize: 12, color: "#ffa5a3ac".color()),
-                    ),
-                    Image.asset(Config.DETAIL_LIGHT, width: 11, height: 11, fit: BoxFit.cover,)
-                  ],
-                ).setPadding1(left: 20, right: 20),
-                SizedBox(
-                  height: 16,
-                ),
-                Container(
-                  height: 173, //注意这里必须制定ListView高度，否则无法显示
-                  child: ListView.builder(
-                      physics: BouncingScrollPhysics(),
-                      scrollDirection: Axis.horizontal,
-                      itemCount: data.pageVO.results.length,
-                      itemBuilder: (BuildContext ctx, int index) {
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Row(
-                              children: <Widget>[
-                                SizedBox(
-                                  width: index == 0 ? 20 : 12,
-                                ),
-                                CachedNetworkImage(
-                                  imageUrl: data.pageVO.results[index].logo,
-                                  width: (ctx.getSrnW() - 52) / 2,
-                                  height: 121,
-                                  fit: BoxFit.cover,
-                                  placeholder: (ctx, url) => Image.asset(Config.RIGHT_COVER, width: (context.getSrnW()-52)/2, height: 121, fit: BoxFit.fill,),
-                                  fadeOutDuration: Duration(milliseconds: 50),
-                                ).setClipRRect(4.0),
-                                SizedBox(
-                                  width: index == data.pageVO.results.length - 1
-                                      ? 20
-                                      : 0,
-                                ),
-                              ],
-                            ),
-                            getAreaListItem(
-                                data.pageVO.results[index], index == 0)
-                          ],
-                        );
-                      }),
-                )
-              ],
-            ));
-          });
-          setState(() {
-            //注意这里不要使用addAll
-            areaList = list;
-          });
-          loading = false;
-          //网络请求结束后，一定要停止动画
-          keyLoading.currentState.stopAnimation();
-        }
+      Req.getHomeLabel1((List<HomeLabelData> labels, String json) {
+        setState(() {
+          //注意这里不要使用addAll
+          areaList = labels;
+        });
+        loading = false;
+        //网络请求结束后，一定要停止动画
+        keyLoading.currentState.stopAnimation();
+        FileUtils.writeFileToTemp(context, 'home_label_data.txt', json);
       });
     });
   }
@@ -480,7 +545,7 @@ class _AppState extends State<HomePage>
   /// 渲染轮播图
   ///---------------------------------------------------------------------------
   void renderBanner() {
-    Req.getBannerInfo1((List<BannerData1> list, String json){
+    Req.getBannerInfo1((List<BannerData1> list, String json) {
       setState(() {
         bannerList = list;
       });
@@ -492,7 +557,7 @@ class _AppState extends State<HomePage>
   /// 渲染首页标签
   ///---------------------------------------------------------------------------
   void renderHomeIcon() {
-    Req.getHomeIcon((List<HomeIconData> iconList, String json){
+    Req.getHomeIcon((List<HomeIconData> iconList, String json) {
       setHomeIconState(iconList);
       FileUtils.writeFileToTemp(context, 'home_icon_data.txt', json);
     });
@@ -513,27 +578,36 @@ class _AppState extends State<HomePage>
 
     _refreshController = RefreshController(initialRefresh: false);
 
-    FileUtils.getStringFromTemp('banner_info_data.txt', (s){
+    FileUtils.getStringFromTemp('banner_info_data.txt', (s) {
       List list = json.decode(s);
-      List<BannerData1> dataList = list.map((data) =>BannerData1.fromJson(data)).toList();
+      List<BannerData1> dataList =
+          list.map((data) => BannerData1.fromJson(data)).toList();
       setState(() {
         bannerList = dataList;
       });
     });
 
-    FileUtils.getStringFromTemp('home_icon_data.txt', (s){
+    FileUtils.getStringFromTemp('home_icon_data.txt', (s) {
       List list = json.decode(s);
-      List<HomeIconData> dataList = list.map((data) =>HomeIconData.fromJson(data)).toList();
+      List<HomeIconData> dataList =
+          list.map((data) => HomeIconData.fromJson(data)).toList();
       setHomeIconState(dataList);
     });
 
-
+    FileUtils.getStringFromTemp('home_label_data.txt', (s) {
+      List list = json.decode(s);
+      List<HomeLabelData> dataList =
+          list.map((data) => HomeLabelData.fromJson(data)).toList();
+      setState(() {
+        areaList = dataList;
+      });
+    });
   }
 
   ///---------------------------------------------------------------------------
   /// 获取专区列表项的名称、价格等信息
   ///---------------------------------------------------------------------------
-  Widget getAreaListItem(Results result, bool isFirst) {
+  Widget getAreaListItem(Result result, bool isFirst) {
     /*
     vipType	integer($int32) 禾卡价格 0未知 1有 2无
      */
@@ -557,39 +631,8 @@ class _AppState extends State<HomePage>
   }
 
   void setHomeIconState(List<HomeIconData> iconList) {
-    List<Widget> list = [];
-    iconList.asMap().forEach((i, data) {
-      list.add(Row(
-        children: <Widget>[
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              CachedNetworkImage(
-                placeholder: (ctx, url) => Image.asset(Config.ICON_COVER),
-                imageUrl: data.iconImg,
-                fit: BoxFit.cover,
-                fadeOutDuration: Duration(milliseconds: 10),
-                fadeInDuration: Duration(milliseconds: 300),
-                width: 54.5,
-                height: 34,
-              ).setClipRRect(17),
-              Text(
-                data.name,
-                style: TextStyle(fontSize: 12, color: "#ff393649".color()),
-              ),
-            ],
-          ).setSizedBox(width: 54.5),
-          SizedBox(
-            width: i == iconList.length - 1
-                ? 0
-                : (context.getSrnW() - (54.5 * iconList.length) - 40) /
-                (iconList.length - 1),
-          ),
-        ],
-      ));
-    });
     setState(() {
-      homeIconList = list;
+      homeIconList = iconList;
     });
   }
 }
@@ -597,8 +640,8 @@ class _AppState extends State<HomePage>
 ///---------------------------------------------------------------------------
 /// 普通列表项
 ///---------------------------------------------------------------------------
-Widget getNormalItem(Results result) {
-  return  Column(
+Widget getNormalItem(Result result) {
+  return Column(
     children: <Widget>[
       SizedBox(
         height: 12,
@@ -610,9 +653,7 @@ Widget getNormalItem(Results result) {
       Text(
         '¥ ${result.price}',
         style: TextStyle(
-            fontSize: 20,
-            color: Config.BLACK_303133,
-            fontFamily: 'money'),
+            fontSize: 20, color: Config.BLACK_303133, fontFamily: 'money'),
       )
     ],
   );
@@ -621,7 +662,7 @@ Widget getNormalItem(Results result) {
 ///---------------------------------------------------------------------------
 /// 只有一个价格的列表项
 ///---------------------------------------------------------------------------
-Widget getOnePriceItem(Results result) {
+Widget getOnePriceItem(Result result) {
   return Column(
     children: <Widget>[
       SizedBox(
@@ -634,9 +675,7 @@ Widget getOnePriceItem(Results result) {
       Text(
         '¥ ${result.price}',
         style: TextStyle(
-            fontSize: 20,
-            color: Config.BLACK_303133,
-            fontFamily: 'money'),
+            fontSize: 20, color: Config.BLACK_303133, fontFamily: 'money'),
       )
     ],
   );
@@ -645,7 +684,7 @@ Widget getOnePriceItem(Results result) {
 ///---------------------------------------------------------------------------
 /// 带删除价格的列表项
 ///---------------------------------------------------------------------------
-Widget getDeletePriceItem(Results result,bool isFirst) {
+Widget getDeletePriceItem(Result result, bool isFirst) {
   return Column(
     children: <Widget>[
       SizedBox(
@@ -654,12 +693,14 @@ Widget getDeletePriceItem(Results result,bool isFirst) {
       Text(
         result.name,
         style: TextStyle(fontSize: 14, color: Config.BLACK_303133),
-      ).setMargin1(left: isFirst?20:1),
+      ).setMargin1(left: isFirst ? 20 : 1),
       Row(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: <Widget>[
-          SizedBox(width: isFirst?20:12,),
+          SizedBox(
+            width: isFirst ? 20 : 12,
+          ),
           VipPriceText(
             price: result.vipPrice.toString(),
             bigFontSize: 20,
@@ -671,7 +712,9 @@ Widget getDeletePriceItem(Results result,bool isFirst) {
             height: 10,
             margin: EdgeInsets.only(bottom: 3),
           ),
-          SizedBox(width: 8,),
+          SizedBox(
+            width: 8,
+          ),
           Container(
             child: Text(
               '¥ ${result.price}',
@@ -691,7 +734,7 @@ Widget getDeletePriceItem(Results result,bool isFirst) {
 ///---------------------------------------------------------------------------
 /// 免费领列表项
 ///---------------------------------------------------------------------------
-Widget getFreeItem(Results result, bool isFirst) {
+Widget getFreeItem(Result result, bool isFirst) {
   return Container(
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,

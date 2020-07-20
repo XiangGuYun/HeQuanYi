@@ -42,7 +42,9 @@ abstract class BaseState<T extends StatefulWidget> extends State
     setState(() {
       _loading = true;
     });
-    key?.currentState?.startAnimation();
+    if(key != null){
+      key?.currentState?.startAnimation();
+    }
   }
 
   void stopLoading() {

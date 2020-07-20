@@ -15,11 +15,16 @@ import 'package:wobei/bean/ExchangeTicketData.dart';
 import 'package:wobei/bean/ExchangeTicketsData.dart';
 import 'package:wobei/bean/HeBeiDetailData.dart';
 import 'package:wobei/bean/HomeIconData.dart';
+import 'package:wobei/bean/HomeLabelData.dart';
 import 'package:wobei/bean/LoginData.dart';
 import 'package:wobei/bean/MeData.dart';
 import 'package:wobei/bean/MyCardData.dart';
+import 'package:wobei/bean/PayInfoData.dart';
 import 'package:wobei/bean/RedPacketData.dart';
 import 'package:wobei/bean/RightClassData.dart';
+import 'package:wobei/bean/RightClassFilteredData.dart';
+import 'package:wobei/bean/RightDetailData.dart';
+import 'package:wobei/bean/RightSubPageData.dart';
 import 'package:wobei/bean/SearchWord.dart';
 import 'package:wobei/common/Global.dart';
 import 'package:wobei/constant/URL.dart';
@@ -89,7 +94,8 @@ class Req {
     return await NetUtils.post2(URL.LUN_BO_TU, params);
   }
 
-  static Future<Response> getBannerInfo1(Function callback, {isHomePage = true}) {
+  static Future<Response> getBannerInfo1(Function callback,
+      {isHomePage = true}) {
     var params = Map<String, String>();
     if (isHomePage) {
       params['position'] = "1";
@@ -97,9 +103,10 @@ class Req {
       params['position'] = "2";
     }
     params['port'] = '3';
-    NetUtils.post(URL.LUN_BO_TU, params, (c, m, s, d){
+    NetUtils.post(URL.LUN_BO_TU, params, (c, m, s, d) {
       List list = json.decode(json.encode(d));
-      List<BannerData1> dataList = list.map((e) => BannerData1.fromJson(e)).toList();
+      List<BannerData1> dataList =
+          list.map((e) => BannerData1.fromJson(e)).toList();
       callback(dataList, json.encode(d));
     });
   }
@@ -114,9 +121,10 @@ class Req {
 
   static void getHomeIcon(Function callback) {
     var params = Map<String, String>();
-    NetUtils.post(URL.HOME_ICON, params, (c, m, s, d){
+    NetUtils.post(URL.HOME_ICON, params, (c, m, s, d) {
       List list = json.decode(json.encode(d));
-      List<HomeIconData> dataList = list.map((e) => HomeIconData.fromJson(e)).toList();
+      List<HomeIconData> dataList =
+          list.map((e) => HomeIconData.fromJson(e)).toList();
       callback(dataList, json.encode(d));
     });
   }
@@ -138,6 +146,19 @@ class Req {
     params['longitude'] = Global.prefs.getString('lon');
     params['cityId'] = Global.prefs.getString('cityId');
     return await NetUtils.post2(URL.HOME_LABEL, params);
+  }
+
+  static void getHomeLabel1(Function callback) {
+    var params = Map<String, String>();
+    params['latitude'] = Global.prefs.getString('lat');
+    params['longitude'] = Global.prefs.getString('lon');
+    params['cityId'] = Global.prefs.getString('cityId');
+    NetUtils.post(URL.HOME_LABEL, params, (c, m, s, d) {
+      List list = json.decode(json.encode(d));
+      List<HomeLabelData> dataList =
+          list.map((e) => HomeLabelData.fromJson(e)).toList();
+      callback(dataList, json.encode(d));
+    });
   }
 
   ///---------------------------------------------------------------------------
@@ -220,10 +241,11 @@ class Req {
   ///---------------------------------------------------------------------------
   /// 获取我的权益卡券
   ///---------------------------------------------------------------------------
-  static void getMyCard( Function callback, {int pageNum = 1, bool isOverdue = false}) {
+  static void getMyCard(Function callback,
+      {int pageNum = 1, bool isOverdue = false}) {
     Map params = Map<String, String>();
     params['pageNum'] = pageNum.toString();
-    params['ifEnd'] = isOverdue?'2':'1';
+    params['ifEnd'] = isOverdue ? '2' : '1';
     NetUtils.post(URL.FEN_YE_LIST, params, (c, m, s, d) {
       callback(MyCardData.fromJson(d));
     });
@@ -387,7 +409,7 @@ class Req {
         Map<String, String>()
           ..['status'] = isOverdue ? '2' : '1'
           ..['pageNum'] = pageNum.toString(), (c, m, s, d) {
-          LogPlugin.logD('test', json.encode(d));
+      LogPlugin.logD('test', json.encode(d));
       callback(ExchangeTicketsData.fromJson(d));
     });
   }
@@ -395,11 +417,11 @@ class Req {
   ///---------------------------------------------------------------------------
   /// 企业专区首页
   ///---------------------------------------------------------------------------
-  static void getEnterprisePrefectureHomePage(int customerId, Function callback){
-    NetUtils.post(
-        URL.QI_YE_ZHUAN_QU_SHOU_YE,
-        Map<String, String>()
-          ..['customerId'] = customerId.toString(), (c, m, s, d) {
+  static void getEnterprisePrefectureHomePage(
+      int customerId, Function callback) {
+    NetUtils.post(URL.QI_YE_ZHUAN_QU_SHOU_YE,
+        Map<String, String>()..['customerId'] = customerId.toString(),
+        (c, m, s, d) {
       callback(EnterprisePrefectureHomePageData.fromJson(d));
     });
   }
@@ -407,15 +429,15 @@ class Req {
   ///---------------------------------------------------------------------------
   /// 企业专区分页，查看各个标签下的权益
   ///---------------------------------------------------------------------------
-  static void getEnterprisePrefecturePage(int labelId, String pageNum, Function callback){
+  static void getEnterprisePrefecturePage(
+      int labelId, String pageNum, Function callback) {
     var params = Map<String, String>();
     params['latitude'] = Global.prefs.getString('lat');
     params['longitude'] = Global.prefs.getString('lon');
     params['cityId'] = Global.prefs.getString('cityId');
     params['labelId'] = labelId.toString();
-    NetUtils.post(
-        URL.FEN_YE_CHA_KAN_GE_GE_BIAO_QIAN_XIA_DE_QUAN_YI,
-        params, (c, m, s, d) {
+    NetUtils.post(URL.FEN_YE_CHA_KAN_GE_GE_BIAO_QIAN_XIA_DE_QUAN_YI, params,
+        (c, m, s, d) {
       callback(EnterprisePrefecturePageData.fromJson(d));
     });
   }
@@ -427,13 +449,12 @@ class Req {
   /// pageNum 1.推送 2.通知
   ///
   ///---------------------------------------------------------------------------
-  static void getMessageCenterData(int pushType, int pageNum, Function callback){
+  static void getMessageCenterData(
+      int pushType, int pageNum, Function callback) {
     var params = Map<String, String>();
     params['pushType'] = pushType.toString();
     params['pageNum'] = pageNum.toString();
-    NetUtils.post(
-        URL.MESSAGE_CENTER,
-        params, (c, m, s, d) {
+    NetUtils.post(URL.MESSAGE_CENTER, params, (c, m, s, d) {
       callback(MessageCenterData.fromJson(d));
     });
   }
@@ -441,12 +462,10 @@ class Req {
   ///---------------------------------------------------------------------------
   /// 设置消息为已读状态
   ///---------------------------------------------------------------------------
-  static void setMsgRead(int id, Function callback){
+  static void setMsgRead(int id, Function callback) {
     var params = Map<String, String>();
     params['id'] = id.toString();
-    NetUtils.post(
-        URL.SET_HAVE_READ,
-        params, (c, m, s, d) {
+    NetUtils.post(URL.SET_HAVE_READ, params, (c, m, s, d) {
       callback(d);
     });
   }
@@ -454,12 +473,10 @@ class Req {
   ///---------------------------------------------------------------------------
   /// 消息点击数+1
   ///---------------------------------------------------------------------------
-  static void clickAddOne(int id, Function callback){
+  static void clickAddOne(int id, Function callback) {
     var params = Map<String, String>();
     params['taskId'] = id.toString();
-    NetUtils.post(
-        URL.CLICK_ADD_ONE,
-        params, (c, m, s, d) {
+    NetUtils.post(URL.CLICK_ADD_ONE, params, (c, m, s, d) {
       callback(d);
     });
   }
@@ -467,17 +484,124 @@ class Req {
   ///---------------------------------------------------------------------------
   /// 获取权益类型列表
   ///---------------------------------------------------------------------------
-  static void getRightClassList(Function callback){
+  static void getRightClassList(Function callback, {level = '1'}) {
     var params = Map<String, String>();
-    params['level'] = "1";
-    NetUtils.post(
-        URL.RIGHT_CLASS_LIST,
-        params, (c, m, s, d) {
-          List list = json.decode(json.encode(d));
-          List<RightClassData> dataList = list.map((e) => RightClassData.fromJson(e)).toList();
-          callback(dataList, json.encode(d));
+    params['level'] = level;
+    NetUtils.post(URL.RIGHT_CLASS_LIST, params, (c, m, s, d) {
+      List list = json.decode(json.encode(d));
+      List<RightClassData> dataList =
+          list.map((e) => RightClassData.fromJson(e)).toList();
+      callback(dataList, json.encode(d));
     });
   }
 
+  ///---------------------------------------------------------------------------
+  ///
+  /// 获取权益分页
+  ///
+  /// itemGroupLevelIds 用户无筛选：一级分类id；用户筛选：一级分类和二级分类的集合
+  ///
+  /// commonType 0-最新 1-热门 2-高价
+  ///
+  /// typeId 不传-不限属性 通用权益-0 其它-1
+  ///
+  /// distanceType 附近-0 3公里-3 6公里-6
+  ///
+  ///---------------------------------------------------------------------------
+  static void getRightSubPage(
+      {itemGroupLevelIds = '',
+      pageNum = 1,
+      commonType = '0',
+      typeId = '',
+      distanceType = '0',
+      Function callback}) {
+    var params = Map<String, String>();
+    params['itemGroupLevelIds'] = itemGroupLevelIds;
+    params['pageNum'] = pageNum.toString();
+    params['latitude'] = Global.prefs.getString('lat');
+    params['longitude'] = Global.prefs.getString('lon');
+    params['commonType'] = '0';
+    if (typeId != '') {
+      params['typeId'] = typeId;
+    }
+    params['distanceType'] = distanceType;
+
+    NetUtils.post(URL.FEN_YE_QUERY, params, (c, m, s, d) {
+      callback(RightSubPageData.fromJson(d), json.encode(d));
+    });
+  }
+
+  ///---------------------------------------------------------------------------
+  /// 请求权益详情
+  ///---------------------------------------------------------------------------
+  static void getRightDetail(int id, Function callback,
+      {bool isEnterprise = false}) {
+    var params = Map<String, String>();
+    params['itemId'] = id.toString();
+    params['latitude'] = Global.prefs.getString('lat');
+    params['longitude'] = Global.prefs.getString('lon');
+    params['cityId'] = Global.prefs.getString('cityId');
+    params['payEntrance'] = isEnterprise ? '2' : '1';
+
+    NetUtils.post(URL.RIGHT_DETAIL, params, (c, m, s, d) {
+      callback(RightDetailData.fromJson(d), json.encode(d));
+    });
+  }
+
+  ///---------------------------------------------------------------------------
+  /// 获取权益分类过滤后的页面
+  ///---------------------------------------------------------------------------
+  static void getRightClassFilteredPage(List<int> idList, Function callback,
+      {pageNum = 1}) {
+    var url = URL.FEN_YE_QUERY;
+    for (int i = 0; i < idList.length; i++) {
+      if (i == 0) {
+        url += "?itemGroupLevelIds=${idList[i]}";
+      } else {
+        url += "&itemGroupLevelIds=${idList[i]}";
+      }
+    }
+    final map = Map<String, String>();
+    map['pageNum'] = pageNum.toString();
+    NetUtils.post(url, map, (c, m, s, d) {
+      callback(RightSubPageData.fromJson(d));
+    });
+  }
+
+  ///---------------------------------------------------------------------------
+  /// 取消支付权益订单
+  ///---------------------------------------------------------------------------
+  static void cancelPayRightOrder(int orderId, Function callback) {
+    NetUtils.post(URL.CANCEL_DUI_HUAN,
+        Map<String, String>()..['orderId'] = orderId.toString(), (c, m, s, d) {
+      callback(d);
+    });
+  }
+
+  ///---------------------------------------------------------------------------
+  /// 获取购买权益或会员的支付页面信息
+  ///---------------------------------------------------------------------------
+  static void getPayInfo(int id, Function callback, {bool isRightPage = true}) {
+    final map = Map<String, String>();
+    if (isRightPage) {
+      map['orderId'] = id.toString();
+    } else {
+      map['vipCardOrderId'] = id.toString();
+    }
+    NetUtils.post(isRightPage ? URL.RIGHT_PAY_INFO : URL.VIP_PAY_INFO, map,
+        (c, m, s, d) {
+          callback(PayInfoData.fromJson(d));
+        });
+  }
+
+/**
+ * 获取支付页面信息
+ */
+//  fun getPayInfo(payType: Int, orderId: Int, callback: (data: PayInfo) -> Unit) {
+//  OK.post<PayInfo>(if (payType == Constant.PAY_RIGHT) URL.RIGHT_PAY_INFO
+//  else URL.VIP_PAY_INFO, {
+//  callback.invoke(it)U
+//  }, (if (payType == Constant.PAY_RIGHT) "orderId" else "vipCardOrderId") to orderId.toString())
+//  }
+
 }
-//

@@ -1,0 +1,5 @@
+enum RightType{
+
+  FREE, ONE_PRICE, VIP_PRICE, NEW_PRICE
+
+}

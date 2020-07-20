@@ -42,7 +42,8 @@ dependencies:
   cached_network_image: ^2.2.0+1 # 显示网络图像并在缓存目录保留这些图像的flutter库
   flutter_webview_plugin: ^0.3.11 # 网页插件，注意IOS需要额外配置
   image_picker: ^0.6.7+4 # 相片选择
-  permission_handler: ^5.0.1+1 #动态权限
+  permission_handler: ^5.0.1+1 # 动态权限
+#  connectivity: ^0.4.9 # 网络连接
   #  image_cropper: ^1.2.3 # 相片裁剪，注意Android需要额外配置
 #  keyboard_visibility: ^0.5.6 # 监听键盘的弹起和关闭
 

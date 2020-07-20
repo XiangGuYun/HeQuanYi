@@ -57,7 +57,6 @@ class _WebPageState extends State<WebPage> with SingleTickerProviderStateMixin, 
         case WebViewState.finishLoad:
           handleJs();
           getWebTitle();
-
           break;
         case WebViewState.shouldStart:
           break;

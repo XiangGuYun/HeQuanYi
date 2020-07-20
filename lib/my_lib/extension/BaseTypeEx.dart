@@ -19,8 +19,8 @@ extension StringEx on String {
   ///---------------------------------------------------------------------------
   /// 设置字符串的最大长度，超出则用...表示
   ///---------------------------------------------------------------------------
-  String maxLength(int length){
-    if(this.length <= length){
+  String maxLength(int length) {
+    if (this.length <= length) {
       return this;
     } else {
       return '${this.substring(0, length)}...';
@@ -30,20 +30,24 @@ extension StringEx on String {
   ///---------------------------------------------------------------------------
   /// 格式化时间
   ///---------------------------------------------------------------------------
-  String fmtDate(List<String> formats){
+  String fmtDate(List<String> formats) {
     int time = this as int;
     return formatDate(DateTime.fromMillisecondsSinceEpoch(time), formats);
   }
 
-  Text text(Color color, double fontSize){
-    return Text(this,style: TextStyle(fontSize: fontSize, color: color),);
+  Text text(Color color, double fontSize, {fw = FontWeight.normal, StrutStyle ss}) {
+    return Text(
+      this,
+      style: TextStyle(fontSize: fontSize, color: color, fontWeight: fw),
+      strutStyle: ss,
+    );
   }
 
   ///---------------------------------------------------------------------------
   /// 将"#FFFFFF"或"#FFFFFFFF"格式的颜色字符串转为Color对象
   ///---------------------------------------------------------------------------
-  Color color(){
-    if(this.length==7){
+  Color color() {
+    if (this.length == 7) {
       var red = BaseUtils.hexToInt(this.substring(1, 3));
       var green = BaseUtils.hexToInt(this.substring(3, 5));
       var blue = BaseUtils.hexToInt(this.substring(5, 7));
@@ -88,7 +92,7 @@ extension IntEx on int {
     return Duration(seconds: this);
   }
 
-  String fmtDate(List<String> formats){
+  String fmtDate(List<String> formats) {
     return formatDate(DateTime.fromMillisecondsSinceEpoch(this), formats);
   }
 
