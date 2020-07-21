@@ -143,7 +143,6 @@ class _BaseAppState extends State<BaseApp> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     loadingAnim = FrameAnimationImage(
       keyLoading,
@@ -276,7 +275,7 @@ class _BaseAppState extends State<BaseApp> {
   }
 
   Widget getFirstPage() {
-    return ScaffoldPage();
+    return Global.prefs.getString('ad')==null? ScaffoldPage() : ADPage();
   }
 }
 

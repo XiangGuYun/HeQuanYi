@@ -18,19 +18,21 @@ class ADPage extends StatefulWidget {
   _AppState createState() => _AppState();
 }
 
-class _AppState extends State<ADPage> with BaseUtils{
-
+class _AppState extends State<ADPage> with BaseUtils {
   /// 广告倒计时秒数
   var number = 3;
+
   /// 用于防止手动跳过广告后后再次执行自动跳过广告的标志位
   var needPush = true;
+
   /// 广告图
   var imgFile;
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
-    imgFile = File(Global.cacheDir+"/ad.jpg");
+    imgFile = File('${Global.cacheDir}/ad/${Global.prefs.getString('ad')}');
+
     /// 执行倒计时任务
     Timer.periodic(1.seconds(), (task) {
       setState(() {
@@ -38,7 +40,8 @@ class _AppState extends State<ADPage> with BaseUtils{
       });
       if (number == 0 && needPush) {
         task.cancel();
-        Navigator.of(context).pushNamedAndRemoveUntil(AppRoute.HOME_PAGE, ModalRoute.withName(AppRoute.AD_PAGE));
+        Navigator.of(context).pushNamedAndRemoveUntil(
+            AppRoute.HOME_PAGE, ModalRoute.withName(AppRoute.AD_PAGE));
       }
     });
   }
@@ -48,7 +51,10 @@ class _AppState extends State<ADPage> with BaseUtils{
     return Scaffold(
         body: Stack(
       children: <Widget>[
-        Image.file(imgFile, fit: BoxFit.cover,).setSize(double.infinity, double.infinity),
+        Image.file(
+          imgFile,
+          fit: BoxFit.cover,
+        ).setSize(double.infinity, double.infinity),
         Container(
           alignment: Alignment.center,
           width: 60,
@@ -63,7 +69,8 @@ class _AppState extends State<ADPage> with BaseUtils{
         ).setClipRRect(14).setAlign(Alignment.topRight).setGestureDetector(
             onTap: () {
           needPush = false;
-          Navigator.of(context).pushNamedAndRemoveUntil(AppRoute.HOME_PAGE, ModalRoute.withName(AppRoute.AD_PAGE));
+          Navigator.of(context).pushNamedAndRemoveUntil(
+              AppRoute.HOME_PAGE, ModalRoute.withName(AppRoute.AD_PAGE));
         }).setPositioned(right: 20, top: 20)
       ],
     ).setSize(double.infinity, double.infinity));

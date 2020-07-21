@@ -96,7 +96,7 @@ class _CityListPageState extends State<CityListPage> with BaseUtils {
             Container(
               child: SingleChildScrollView(
                 controller: ctrl,
-                physics: BouncingScrollPhysics(),
+//                physics: BouncingScrollPhysics(),
                 child: Column(
                   children: cityList
                       .map((e) => Container(

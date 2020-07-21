@@ -1,11 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:frame_animate_widget/frame_animate_widget.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:wobei/bean/AdData.dart';
 import 'package:wobei/bean/Banner.dart';
 import 'package:wobei/bean/BannerData.dart';
 import 'package:wobei/bean/BannerData1.dart';
@@ -103,10 +106,15 @@ class _AppState extends State<HomePage>
   void initState() {
     super.initState();
     init();
+
     Global.prefs.setString('cityId', '87'); // todo 先写死
+
     doLocateAndRenderAreaList();
+
     renderBanner();
+
     renderHomeIcon();
+
     Req.getKeyword((SearchWord data) {
       searchWord = data;
       setState(() {
@@ -114,13 +122,19 @@ class _AppState extends State<HomePage>
         recommendWords = data.recommendWords;
       });
     });
+
     Req.getRightClassList((List<RightClassData> data, String json) {
       Global.classNumber = data.length;
       FileUtils.writeFileToTemp(context, 'right_class_data.txt', json);
     });
+
     Req.getVipShopCategory((List<CategoryData> data, String jsonStr) {
       Global.categoryNumber = data.length;
       FileUtils.writeFileToTemp(context, 'cate_data.txt', jsonStr);
+    });
+
+    Req.getAdInfo((success, data) {
+      doAdData(AdData.fromJson(data));
     });
   }
 
@@ -471,7 +485,8 @@ class _AppState extends State<HomePage>
                   ).setGestureDetector(
                       onTap: () {
                         Navigator.of(context).pushNamed(
-                            AppRoute.PREFECTURE_PAGE, arguments: areaList[i].id);
+                            AppRoute.PREFECTURE_PAGE,
+                            arguments: areaList[i].id);
                       }
                   ),
                   Image.asset(
@@ -575,9 +590,27 @@ class _AppState extends State<HomePage>
   /// 定位并渲染专区列表
   ///---------------------------------------------------------------------------
   void doLocateAndRenderAreaList() {
-    AmapPlugin.startLocate((Location location) {
+    if(Platform.isAndroid){
+      AmapPlugin.startLocate((Location location) {
+        setState(() {
+          userCity = location.cityName.replaceAll('市', '');
+        });
+        Req.getHomeLabel1((List<HomeLabelData> labels, String json) {
+          setState(() {
+            //注意这里不要使用addAll
+            areaList = labels;
+          });
+          loading = false;
+          //网络请求结束后，一定要停止动画
+          keyLoading.currentState.stopAnimation();
+          FileUtils.writeFileToTemp(context, 'home_label_data.txt', json);
+        });
+      });
+    } else {
+      Global.prefs.setString('lat', '30.286106');
+      Global.prefs.setString('lon', '120.108088');
       setState(() {
-        userCity = location.cityName.replaceAll('市', '');
+        userCity = '杭州';
       });
       Req.getHomeLabel1((List<HomeLabelData> labels, String json) {
         setState(() {
@@ -589,7 +622,7 @@ class _AppState extends State<HomePage>
         keyLoading.currentState.stopAnimation();
         FileUtils.writeFileToTemp(context, 'home_label_data.txt', json);
       });
-    });
+    }
   }
 
   ///---------------------------------------------------------------------------
@@ -685,6 +718,25 @@ class _AppState extends State<HomePage>
     setState(() {
       homeIconList = iconList;
     });
+  }
+
+  void doAdData(AdData adData) {
+    var imgUrl =  adData.imageUrl;
+    var imgUrlLocate = Global.prefs.getString('ad');
+    if (adData.isHave && imgUrl != imgUrlLocate ) {
+      //如果有广告
+      File('${Global.cacheDir}/ad/${adData.imageUrl}').exists().then((exists) {
+        if (!exists) {
+          //如果广告图不存在则下载到缓存路径
+          Dio()
+              .download(
+              adData.imageUrl, '${Global.cacheDir}/ad/${adData.imageUrl}')
+              .then((response) {
+                Global.prefs.setString('ad', adData.imageUrl);
+          });
+        }
+      });
+    }
   }
 }
 
