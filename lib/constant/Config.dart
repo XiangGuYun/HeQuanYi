@@ -36,6 +36,7 @@ class Config{
   ///---------------------------------------------------------------------------
   /// 图片资源
   ///---------------------------------------------------------------------------
+  static const String COVER_100_100 = 'assets/images/cover_100_100.png';
   static const String COVER_88_66 = 'assets/images/cover_88_66.png';
   static const String COVER_120_90 = 'assets/images/cover_120_90.png';
   static const String DEFAULT_AVATAR = 'assets/images/default_avatar.png';

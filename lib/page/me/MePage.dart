@@ -148,6 +148,8 @@ class _AppState extends BaseState<MePage>
         valueExchangeUnUse = me.throneCardNotUseNum;
         // 红包未使用数量
         valueRedPacketUnUse = me.welfareCardNotUseNum;
+        // 保存手机号码
+        Global.prefs.setString('phone', me.phone);
         // 会员状态
         switch (me.state) {
           case '1': // 已过期

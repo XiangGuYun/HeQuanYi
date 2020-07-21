@@ -47,6 +47,7 @@ extension ContextEx on BuildContext {
   /// 退出界面
   ///---------------------------------------------------------------------------
   void pop() {
+    Global.stackNumber -= 1;
     Navigator.pop(this);
   }
 

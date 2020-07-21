@@ -90,4 +90,25 @@ class AppRoute {
   
   /// 权益支付页
   static const String RIGHT_PAY_PAGE = '/right_pay';
+  
+  /// 脚手架页
+  static const String SCAFFOLD_PAGE = '/scaffold';
+  
+  /// 会员商城页
+  static const String VIP_SHOP_PAGE = '/vip_shop';
+  
+  /// 会员商城商品详情页
+  static const String PRODUCT_DETAIL_PAGE = '/product_detail';
+  
+  /// 我的订单页
+  static const String MY_ORDER_PAGE = '/my_order';
+
+  /// 禾卡专属页
+  static const String HE_KA_ZHUAN_SHU = '/HeKaExclusivePage';
+
+  /// 话费充值页
+ static const String PREPAID_REFILL_PAGE = '/prepaid_refill';
+
+ /// 专区页
+ static const String PREFECTURE_PAGE = '/prefecture';
 }

@@ -29,22 +29,14 @@ class MainActivity : FlutterActivity() {
 
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler { call, result ->
             when (call.method) {
-                "getBatteryLevel" -> {
-                    val batteryLevel = getBatteryLevel()
-                    if (batteryLevel != -1) {
-                        result.success(batteryLevel)
-                    } else {
-                        result.error("UNAVAILABLE", "Battery level not available.", null)
-                    }
-                }
-                "reqPermission"->{
-                    reqPermission(call.arguments as (Double, Double) -> Unit)
-                }
                 "toast"->{
                     toast(call.argument<String>("text").toString())
                 }
                 "logD"->{
                     logD(call.argument<String>("tag").toString(), call.argument<String>("text").toString())
+                }
+                "goToWebView"->{
+                    goToWebView(call.argument<String>("url").toString())
                 }
                 else -> {
                     result.notImplemented()
@@ -54,16 +46,8 @@ class MainActivity : FlutterActivity() {
 
     }
 
-    fun getBatteryLevel(): Int {
-        var batteryLevel = 0
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            val batteryManager = getSystemService(Context.BATTERY_SERVICE) as BatteryManager
-            batteryLevel = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
-        } else {
-            val intent = ContextWrapper(application).registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
-            batteryLevel = intent!!.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) * 100 / intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1)
-        }
-        return batteryLevel
+    fun goToWebView(url : String){
+        HeBeiHtmlActivity.start(this, url);
     }
 
     fun toast(text:String){
@@ -72,35 +56,6 @@ class MainActivity : FlutterActivity() {
 
     fun logD(tag:String, text: String){
         Log.d(tag, text)
-    }
-
-    @SuppressLint("CheckResult")
-    fun reqPermission(function:(lon:Double, lat:Double)->Unit){
-        Toast.makeText(this, "请求权限", Toast.LENGTH_SHORT).show()
-
-//        val rp = RxPermissions(this)
-//        rp.requestEachCombined(READ_PHONE_STATE, WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE,
-//                Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION)
-//                .subscribe { permission ->
-//                    when {
-//                        permission.granted -> {
-//
-//                        }
-//                        permission.shouldShowRequestPermissionRationale -> {
-//
-//                        }
-//                        else -> {
-//
-//                        }
-//                    }
-//                }
-
-//        val dialog = AlertDialog.Builder(this).setTitle("标题").setMessage("你好呀").create()
-//        dialog.show()
-
-        MapUtils().initLocation(this){
-            function.invoke(it.longitude, it.latitude)
-        }.startLocation()
     }
 
 }

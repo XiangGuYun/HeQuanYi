@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wobei/constant/Config.dart';
 import 'package:wobei/my_lib/base/BaseState.dart';
+import '../my_lib/extension/BaseExtension.dart';
 
 ///=============================================================================
 ///顶部标题栏
@@ -59,7 +60,7 @@ class TitleBar extends StatelessWidget with BaseUtils {
                   fit: BoxFit.cover,
                 ),
                 onTap: () {
-                  Navigator.of(context).pop();
+                  context.pop();
                 },
               ),
               alignment: Alignment(-1, 0),

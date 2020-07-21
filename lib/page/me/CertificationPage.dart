@@ -45,7 +45,7 @@ class _CertificationPageState extends State<CertificationPage> with BaseUtils {
               width: 24,
               height: 24,
             ).setInkWell(onTap: (){
-              Navigator.of(context).pop();
+              context.pop();
             }),
             margin: EdgeInsets.only(left: 20, top: 10, bottom: 10),
             height: 44,
@@ -182,7 +182,7 @@ class _CertificationPageState extends State<CertificationPage> with BaseUtils {
             Req.certification(valueRealName, valueIdCardNumber, (msg){
               ToastUtils.show('实名认证成功');
               bus.emit('PersonalInfoPage', Pair(first: 'certificated', second: true));
-              Navigator.of(context).pop();
+              context.pop();
             }, (msg){
               ToastUtils.show(msg);
             });

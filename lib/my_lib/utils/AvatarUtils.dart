@@ -71,7 +71,7 @@ class AvatarUtils {
                     style: TextStyle(fontSize: 17, color: Config.BLACK_303133),
                   ),
                 ).setGestureDetector(onTap: () {
-                  Navigator.of(context).pop();
+                  context.pop();
                 }),
               ],
             ),
@@ -101,7 +101,7 @@ class AvatarUtils {
   ///
   ///---------------------------------------------------------------------------
   void _select(BuildContext context, int method, Function callback) async {
-    Navigator.of(context).pop();
+    context.pop();
     ImageSource source =
     (method == 1 ? ImageSource.camera : ImageSource.gallery);
     picker.getImage(source: source, maxWidth: 400, maxHeight: 400).then((pickedFile) {

@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:wobei/bean/Pair.dart';
 import 'package:wobei/common/Global.dart';
 import 'package:wobei/constant/Config.dart';
 import 'package:wobei/my_lib/EventBus.dart';
@@ -151,6 +152,7 @@ class _AppState extends State<ScaffoldPage> with BaseUtils {
                         currentIndex = 0;
                       });
                       _pageController.jumpToPage(0);
+                      bus.emit('LoginPage', Pair(first: 'LoginPage', second: true));
                     }),
                     GestureDetector(
                         child: Container(
@@ -172,6 +174,7 @@ class _AppState extends State<ScaffoldPage> with BaseUtils {
                             currentIndex = 1;
                           });
                           _pageController.jumpToPage(1);
+                          bus.emit('LoginPage', Pair(first: 'closeKB', second: true));
                         }),
                     Container(
                       color: Colors.white,

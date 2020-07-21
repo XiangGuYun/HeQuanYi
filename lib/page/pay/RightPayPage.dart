@@ -1,13 +1,17 @@
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:wobei/bean/Pair.dart';
 import 'package:wobei/bean/PayInfoData.dart';
-import 'package:wobei/bean/RightDetailData.dart';
 import 'package:wobei/constant/Config.dart';
+import 'package:wobei/my_lib/EventBus.dart';
 import 'package:wobei/my_lib/Req.dart';
 import 'package:wobei/my_lib/base/BaseState.dart';
 import 'package:wobei/page/dialog/CancelPayDialog.dart';
 import 'package:wobei/widget/BlackButton.dart';
 import 'package:wobei/widget/TitleBar.dart';
+
 import '../../my_lib/extension/BaseExtension.dart';
 
 ///********************************************************************************************
@@ -16,8 +20,8 @@ import '../../my_lib/extension/BaseExtension.dart';
 ///
 ///********************************************************************************************
 class RightPayPage extends StatefulWidget {
-  /// 订单ID
-  final int id;
+  /// itemID
+  final String id;
 
   RightPayPage({this.id});
 
@@ -37,15 +41,39 @@ class _RightPayPageState extends State<RightPayPage> with BaseUtils {
   /// 支付方式
   List<Payway> payWays = [];
 
+  var time = '30:00';
+
+  String getFmtString(int seconds) {
+    return (seconds / 60).toInt().toString() + ":" + (seconds % 60).toString();
+  }
+
   @override
   void initState() {
     super.initState();
+
+    var timePeriod = 30 * 60;
+
+    Timer.periodic(Duration(seconds: 1), (timer) {
+      timePeriod -= 1;
+      setState(() {
+        time = getFmtString(timePeriod);
+      });
+      if (timePeriod == 0) {
+        timer.cancel();
+        Req.cancelPayRightOrder(widget.id, (d) {
+          if (d) {
+            context.pop();
+          }
+        });
+      }
+    });
+
     dialogCancelPay = CancelPayDialog(
       rightClick: () {
         Req.cancelPayRightOrder(widget.id, (d) {
           if (d) {
-            Navigator.of(context).pop();
-            Navigator.of(context).pop();
+            context.pop();
+            context.pop();
           }
         });
       },
@@ -94,7 +122,7 @@ class _RightPayPageState extends State<RightPayPage> with BaseUtils {
                         SizedBox(
                           width: 5,
                         ),
-                        '支付剩余时间 29:56'.text('#909399'.color(), 14),
+                        '支付剩余时间 $time'.text('#909399'.color(), 14),
                         SizedBox(
                           width: 1,
                         ).setExpanded(1),
@@ -173,7 +201,29 @@ class PayWayItem extends StatefulWidget {
 }
 
 class _PayWayItemState extends State<PayWayItem> {
-  var selectedIndex = 0;
+  var isChecked = false;
+
+  @override
+  void initState() {
+    super.initState();
+    isChecked = widget.payWay.chosen;
+    bus.on('PayWayItem', (arg) {
+      Pair pair = arg;
+      switch (pair.first) {
+        case 'checkEvent':
+          if (widget.index == pair.second) {
+            setState(() {
+              isChecked = true;
+            });
+          } else {
+            setState(() {
+              isChecked = false;
+            });
+          }
+          break;
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -192,14 +242,19 @@ class _PayWayItemState extends State<PayWayItem> {
             top: 20,
             bottom: 20,
           ),
-          Container(
-            height: 60,
-            child: widget.payWay.content.text(Config.BLACK_303133, 16),
-            alignment: Alignment.centerLeft,
+          Positioned(
+            child: Container(
+              height: 60,
+              child: widget.payWay.content.text(Config.BLACK_303133, 16),
+              alignment: Alignment.centerLeft,
+            ),
+            left: 60,
           ),
           Positioned(
             child: Image.asset(
-              selectedIndex == widget.index ? Config.SELECTED : Config.SELECT,
+              widget.payWay.selectable
+                  ? (isChecked ? Config.SELECTED : Config.SELECT)
+                  : Config.SELECT_DISABLE,
               width: 16,
               height: 16,
             ),
@@ -214,6 +269,7 @@ class _PayWayItemState extends State<PayWayItem> {
               color: Config.DIVIDER_COLOR,
             ),
             left: 0,
+            right: 0,
             bottom: 0,
           )
         ],
@@ -222,7 +278,8 @@ class _PayWayItemState extends State<PayWayItem> {
         behavior: HitTestBehavior.opaque,
         onTap: () {
           setState(() {
-            selectedIndex = widget.index;
+            bus.emit(
+                'PayWayItem', Pair(first: 'checkEvent', second: widget.index));
           });
         });
   }

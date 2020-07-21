@@ -89,118 +89,118 @@ class _MyAppState extends State<RightPage>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(84.0),
-        child: Container(
-          padding: EdgeInsets.only(top: getStatusBarHeight()),
-          child: Column(
-            children: <Widget>[
-              Row(
-                children: <Widget>[
-                  TabBar(
-                    isScrollable: true,
-                    labelPadding: EdgeInsets.only(left: 12, right: 12),
-                    controller: _controller,
-                    indicator: MyTabIndicator(
-                        borderSide:
-                            BorderSide(width: 3, color: Config.RED_B3926F),
-                        indicatorWidth: 18,
-                        paddingBottom: 3),
-                    labelStyle: selectStyle,
-                    unselectedLabelStyle: unSelectStyle,
-                    labelColor: Color(0xff393649),
-                    unselectedLabelColor: Color(0xffA5A3AC),
-                    tabs: tabList,
-                  ).setExpanded(1),
-                  Container(
-                    width: 54,
-                    alignment: Alignment.center,
-                    child: Image.asset(
-                      Config.CLASSIFICATION,
-                      width: 24,
-                      height: 24,
-                    ),
-                  ).setGestureDetector(
+      preferredSize: Size.fromHeight(84.0),
+      child: Container(
+        padding: EdgeInsets.only(top: getStatusBarHeight()),
+        child: Column(
+          children: <Widget>[
+            Row(
+              children: <Widget>[
+                TabBar(
+                  isScrollable: true,
+                  labelPadding: EdgeInsets.only(left: 12, right: 12),
+                  controller: _controller,
+                  indicator: MyTabIndicator(
+                      borderSide:
+                      BorderSide(width: 3, color: Config.RED_B3926F),
+                      indicatorWidth: 18,
+                      paddingBottom: 3),
+                  labelStyle: selectStyle,
+                  unselectedLabelStyle: unSelectStyle,
+                  labelColor: Color(0xff393649),
+                  unselectedLabelColor: Color(0xffA5A3AC),
+                  tabs: tabList,
+                ).setExpanded(1),
+                Container(
+                  width: 54,
+                  alignment: Alignment.center,
+                  child: Image.asset(
+                    Config.CLASSIFICATION,
+                    width: 24,
+                    height: 24,
+                  ),
+                ).setGestureDetector(
                     behavior: HitTestBehavior.opaque,
                     onTap: (){
                       Navigator.of(context).pushNamed(AppRoute.RIGHT_CLASS_PAGE);
                     }
-                  )
-                ],
-              ).setSizedBox(
-                height: 44,
-              ),
-              Row(
-                children: <Widget>[
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      listZX[currentIndexZX].text('#393649'.color(), 14),
-                      SizedBox(
-                        width: 4,
-                      ),
-                      Image.asset(
-                        prop == RightProp.ZUI_XIN && maskVisible ? Config.FOLD : Config.UNFOLD,
-                        width: 12,
-                        height: 12,
-                      )
-                    ],
-                  ).setSizedBox(width: context.getSrnW()/3).setGestureDetector(onTap: () {
-                    setState(() {
-                      prop = RightProp.ZUI_XIN;
-                      maskVisible = true;
-                    });
-                  }),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      listBXSX[currentIndexBXSX].text('#393649'.color(), 14),
-                      SizedBox(
-                        width: 4,
-                      ),
-                      Image.asset(
-                        prop == RightProp.BU_XIAN_SHU_XING && maskVisible ? Config.FOLD : Config.UNFOLD,
-                        width: 12,
-                        height: 12,
-                      )
-                    ],
-                  ).setSizedBox(width: context.getSrnW()/3).setGestureDetector(onTap: () {
-                    setState(() {
-                      prop = RightProp.BU_XIAN_SHU_XING;
-                      maskVisible = true;
-                    });
-                  }),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      listFJ[currentIndexFJ].text('#393649'.color(), 14),
-                      SizedBox(
-                        width: 4,
-                      ),
-                      Image.asset(
-                        prop == RightProp.FU_JIN && maskVisible ? Config.FOLD : Config.UNFOLD,
-                        width: 12,
-                        height: 12,
-                      )
-                    ],
-                  ).setSizedBox(width: context.getSrnW()/3).setGestureDetector(onTap: () {
-                    setState(() {
-                      prop = RightProp.FU_JIN;
-                      maskVisible = true;
-                    });
-                  }),
-                ],
-              ).setSizedBox(height: 39),
-              Divider(
-                height: 1,
-                color: Config.DIVIDER_COLOR,
-              )
-            ],
-          ),
+                )
+              ],
+            ).setSizedBox(
+              height: 44,
+            ),
+            Row(
+              children: <Widget>[
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    listZX[currentIndexZX].text('#393649'.color(), 14),
+                    SizedBox(
+                      width: 4,
+                    ),
+                    Image.asset(
+                      prop == RightProp.ZUI_XIN && maskVisible ? Config.FOLD : Config.UNFOLD,
+                      width: 12,
+                      height: 12,
+                    )
+                  ],
+                ).setSizedBox(width: context.getSrnW()/3).setGestureDetector(onTap: () {
+                  setState(() {
+                    prop = RightProp.ZUI_XIN;
+                    maskVisible = true;
+                  });
+                }),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    listBXSX[currentIndexBXSX].text('#393649'.color(), 14),
+                    SizedBox(
+                      width: 4,
+                    ),
+                    Image.asset(
+                      prop == RightProp.BU_XIAN_SHU_XING && maskVisible ? Config.FOLD : Config.UNFOLD,
+                      width: 12,
+                      height: 12,
+                    )
+                  ],
+                ).setSizedBox(width: context.getSrnW()/3).setGestureDetector(onTap: () {
+                  setState(() {
+                    prop = RightProp.BU_XIAN_SHU_XING;
+                    maskVisible = true;
+                  });
+                }),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    listFJ[currentIndexFJ].text('#393649'.color(), 14),
+                    SizedBox(
+                      width: 4,
+                    ),
+                    Image.asset(
+                      prop == RightProp.FU_JIN && maskVisible ? Config.FOLD : Config.UNFOLD,
+                      width: 12,
+                      height: 12,
+                    )
+                  ],
+                ).setSizedBox(width: context.getSrnW()/3).setGestureDetector(onTap: () {
+                  setState(() {
+                    prop = RightProp.FU_JIN;
+                    maskVisible = true;
+                  });
+                }),
+              ],
+            ).setSizedBox(height: 39),
+            Divider(
+              height: 1,
+              color: Config.DIVIDER_COLOR,
+            )
+          ],
         ),
       ),
+    ),
       backgroundColor: Colors.white,
       body: Stack(
         children: <Widget>[

@@ -7,6 +7,7 @@ import 'package:frame_animate_widget/frame_animate_widget.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wobei/bean/CityBean.dart';
+import 'package:wobei/constant/AppRoute.dart';
 import 'package:wobei/constant/Config.dart';
 import 'package:wobei/enum/RightType.dart';
 import 'package:wobei/my_lib/utils/AppUtils.dart';
@@ -19,11 +20,20 @@ import 'package:wobei/my_lib/utils/PathUtils.dart';
 ///
 /// **************************************************************************
 class Global {
+  /// 登录后需要跳转的路由
+  static String routeLogin = AppRoute.SCAFFOLD_PAGE;
+
+  /// 栈的深度
+  static int stackNumber = 0;
 
   /// 当前状态栏是否是黑色字体
   static bool isDarkText = true;
 
+  /// 权益分类数量
   static int classNumber = 0;
+
+  /// 会员商城类目数量
+  static int categoryNumber = 0;
 
   /// 共享配置
   static SharedPreferences prefs;

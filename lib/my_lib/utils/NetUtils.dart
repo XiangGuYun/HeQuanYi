@@ -5,13 +5,17 @@ import 'dart:typed_data';
 import 'package:convert/convert.dart';
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:package_info/package_info.dart';
 import 'package:wobei/common/Global.dart';
+import 'package:wobei/constant/AppRoute.dart';
 import 'package:wobei/my_lib/EventBus.dart';
 import 'package:wobei/my_lib/utils/AppUtils.dart';
 import 'package:wobei/my_lib/utils/SPUtils.dart';
 import 'package:wobei/my_lib/utils/System.dart';
 import 'package:wobei/my_lib/utils/ToastUtils.dart';
+import 'package:wobei/plugin/LogPlugin.dart';
+import '../extension/BaseExtension.dart';
 
 import '../../constant/URL.dart';
 
@@ -35,10 +39,16 @@ class NetUtils {
   ///---------------------------------------------------------------------------
   static void post(
       String url, Map<String, String> parameters, Function getResult,
-      {handleBySelf = false}) async {
-
+      {handleBySelf = false, BuildContext context}) async {
     //放置请求头参数
     var headers = Map<String, dynamic>();
+
+    if(!Global.isRelease){
+      LogPlugin.logD('test_url', 'url is ${url}');
+      parameters.forEach((key, value) {
+        LogPlugin.logD('test_url', '传参是 $key $value');
+      });
+    }
 
     //获取包信息
 //    PackageInfo packageInfo = await PackageInfo.fromPlatform();
@@ -70,16 +80,25 @@ class NetUtils {
         queryParameters: parameters, options: options);
     if ([4004, 4005, 15210].contains(response.data['code'])) {
       //对特定错误响应码进行处理
-      _handleCode(response.data['code'], response.data['msg']);
+      _handleCode(response.data['code'], response.data['msg'],
+          context: context);
       return;
     }
-    print(json.encode(response.data));
+    if(url == URL.RIGHT_PAY_INFO){
+      print(json.encode(response.data));
+    }
     if (!handleBySelf) {
       if (response.data['success']) {
+        if(!Global.isRelease){
+          LogPlugin.logD('test_url', json.encode(response.data['data']));
+          LogPlugin.logD('test_url', '============================================');
+        }
         getResult(response.data['code'], response.data['msg'],
             response.data['success'], response.data['data']);
       } else {
         ToastUtils.show(response.data['msg']);
+        LogPlugin.logD('test_url', 'ERR ========== ${ response.data['msg']}');
+
       }
     } else {
       getResult(response.data['code'], response.data['msg'],
@@ -315,10 +334,15 @@ class NetUtils {
   ///---------------------------------------------------------------------------
   /// 处理特定错误码
   ///---------------------------------------------------------------------------
-  static void _handleCode(code, msg) {
+  static void _handleCode(code, msg, {BuildContext context}) {
     ToastUtils.show(msg);
     switch (code) {
       case 4004: //未登录
+        if (context != null) {
+          for (int i = 0; i < Global.stackNumber; i++) {
+            context.pop();
+          }
+        }
         bus.emit('Scaffold', 'unlogin');
         break;
       case 4005: //未实名认证

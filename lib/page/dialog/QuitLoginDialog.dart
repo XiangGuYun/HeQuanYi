@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:wobei/page/dialog/BaseDialog.dart';
+import '../../my_lib/extension/BaseExtension.dart';
 
 ///********************************************************************************************
 ///
@@ -73,7 +74,7 @@ class QuitLoginDialog extends BaseDialog {
                             ),
                           ),
                           onTap: () {
-                            Navigator.of(context).pop();
+                            context.pop();
                           },
                         ),
                       ),

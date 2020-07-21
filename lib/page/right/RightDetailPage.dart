@@ -5,11 +5,14 @@ import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:wobei/bean/RightDetailData.dart';
+import 'package:wobei/common/Global.dart';
 import 'package:wobei/constant/AppRoute.dart';
 import 'package:wobei/constant/Config.dart';
+import 'package:wobei/my_lib/EventBus.dart';
 import 'package:wobei/my_lib/Req.dart';
 import 'package:wobei/my_lib/base/BaseState.dart';
 import 'package:wobei/my_lib/utils/FileUtils.dart';
+import 'package:wobei/my_lib/utils/SPUtils.dart';
 import 'package:wobei/widget/BlackButton.dart';
 import 'package:wobei/widget/right_item/RightDetailBar.dart';
 import '../../my_lib/extension/BaseExtension.dart';
@@ -220,8 +223,15 @@ class _RightDetailPageState extends State<RightDetailPage> with BaseUtils {
                   BlackButton(
                     text: '立即购买',
                     onClickListener: () {
-                      Navigator.of(context).pushNamed(AppRoute.RIGHT_PAY_PAGE,
-                          arguments: widget.id);
+                      if(Global.prefs.getString('token') != ''){
+                        Req.createRightOrder(widget.id, (String orderId){
+                          Navigator.of(context).pushNamed(AppRoute.RIGHT_PAY_PAGE,
+                              arguments: orderId);
+                        });
+                      } else {
+                        context.pop();
+                        bus.emit('Scaffold', 'unlogin');
+                      }
                     },
                   ).setMargin1(left: 20, right: 20)
                 ],
@@ -264,7 +274,7 @@ class _RightDetailPageState extends State<RightDetailPage> with BaseUtils {
               height: 24,
             ).setMargin1(left: 15, top: 10 + getStatusBarHeight()).setInkWell(
                 onTap: () {
-              Navigator.of(context).pop();
+              context.pop();
             }),
           ),
         ],

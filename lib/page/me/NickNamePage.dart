@@ -62,7 +62,7 @@ class _NicknamePageState extends State<NicknamePage> with BaseUtils {
                   alignment: Alignment(-1, 0),
                   height: 44,
                 ).setInkWell(onTap: () {
-                  Navigator.of(context).pop();
+                  context.pop();
                 }),
               ),
               Positioned(
@@ -146,7 +146,7 @@ class _NicknamePageState extends State<NicknamePage> with BaseUtils {
     Req.modifyMeInfo(params, () {
       bus.emit('PersonalInfoPage', Pair(first: 'nickname', second: nickname));
       bus.emit('MePage', Pair(first: 'nickname', second: nickname));
-      Navigator.of(context).pop();
+      context.pop();
     });
   }
 

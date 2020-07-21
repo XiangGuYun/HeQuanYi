@@ -9,6 +9,7 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:wobei/bean/Banner.dart';
 import 'package:wobei/bean/BannerData.dart';
 import 'package:wobei/bean/BannerData1.dart';
+import 'package:wobei/bean/CategoryData.dart';
 import 'package:wobei/bean/EnterprisePrefectureHomePageData.dart';
 import 'package:wobei/bean/HomeIcon.dart';
 import 'package:wobei/bean/HomeIconData.dart';
@@ -24,8 +25,10 @@ import 'package:wobei/constant/Config.dart';
 import 'package:wobei/my_lib/Req.dart';
 import 'package:wobei/my_lib/base/BaseState.dart';
 import 'package:wobei/my_lib/utils/FileUtils.dart';
+import 'package:wobei/page/order/VipShopPage.dart';
 import 'package:wobei/plugin/AmapPlugin.dart';
 import 'package:wobei/plugin/LogPlugin.dart';
+import 'package:wobei/plugin/WebPlugin.dart';
 import 'package:wobei/widget/VipPriceText.dart';
 import 'file:///D:/hequanyi/flutter_app/lib/widget/right_item/home/FreeItem.dart';
 
@@ -46,7 +49,7 @@ class HomePage extends StatefulWidget {
 class _AppState extends State<HomePage>
     with
         BaseUtils,
-        //为了在页面切出去后保留当前状态，必须实现此接口，重写wantKeepAlive方法并返回true
+    //为了在页面切出去后保留当前状态，必须实现此接口，重写wantKeepAlive方法并返回true
         AutomaticKeepAliveClientMixin {
   /// 轮播图列表
   List<BannerData1> bannerList = [];
@@ -81,6 +84,8 @@ class _AppState extends State<HomePage>
   /// 推荐搜索词，需要传给搜索页显示
   List<String> recommendWords = [];
 
+  SearchWord searchWord;
+
   ///===========================================================================
   /// 当页面销毁时
   ///===========================================================================
@@ -103,6 +108,7 @@ class _AppState extends State<HomePage>
     renderBanner();
     renderHomeIcon();
     Req.getKeyword((SearchWord data) {
+      searchWord = data;
       setState(() {
         textSuggestSearch = data.suggestWord;
         recommendWords = data.recommendWords;
@@ -111,6 +117,10 @@ class _AppState extends State<HomePage>
     Req.getRightClassList((List<RightClassData> data, String json) {
       Global.classNumber = data.length;
       FileUtils.writeFileToTemp(context, 'right_class_data.txt', json);
+    });
+    Req.getVipShopCategory((List<CategoryData> data, String jsonStr) {
+      Global.categoryNumber = data.length;
+      FileUtils.writeFileToTemp(context, 'cate_data.txt', jsonStr);
     });
   }
 
@@ -132,27 +142,27 @@ class _AppState extends State<HomePage>
               onRefresh: _onRefresh,
               header: CustomHeader(
                   builder: (BuildContext context, RefreshStatus mode) {
-                return Container(
-                  height: 100,
-                  child: Stack(
-                    children: <Widget>[
-                      Positioned(
-                        left: 100,
-                        right: 100,
-                        bottom: 0,
-                        child: FrameAnimationImage(
-                          keyRefresh,
-                          Global.frameList,
-                          width: 200,
-                          height: 30,
-                          interval: 20,
-                          start: true,
-                        ),
-                      )
-                    ],
-                  ),
-                );
-              }),
+                    return Container(
+                      height: 100,
+                      child: Stack(
+                        children: <Widget>[
+                          Positioned(
+                            left: 100,
+                            right: 100,
+                            bottom: 0,
+                            child: FrameAnimationImage(
+                              keyRefresh,
+                              Global.frameList,
+                              width: 200,
+                              height: 30,
+                              interval: 20,
+                              start: true,
+                            ),
+                          )
+                        ],
+                      ),
+                    );
+                  }),
               controller: _refreshController,
               child: ListView.builder(
                   itemCount: 7,
@@ -265,7 +275,7 @@ class _AppState extends State<HomePage>
           ),
         ).setGestureDetector(onTap: () {
           Navigator.of(context)
-              .pushNamed(AppRoute.SEARCH_PAGE, arguments: recommendWords);
+              .pushNamed(AppRoute.SEARCH_PAGE, arguments: searchWord);
         }).setExpanded(1)
       ],
     ).setSize(double.infinity, 30);
@@ -288,12 +298,13 @@ class _AppState extends State<HomePage>
           height: 167.5,
         ).setGestureDetector(onTap: () {
           switch (bannerList[index].jumpType) {
-            //1.静态 2.H5 3.权益 4.会员购买页
+          //1.静态 2.H5 3.权益 4.会员购买页
             case '1':
             case '2':
               if (bannerList[index].jumpUrl.isNotEmpty) {
-                Navigator.of(context).pushNamed(AppRoute.WEB_PAGE,
-                    arguments: bannerList[index].jumpUrl);
+                WebPlugin.show(bannerList[index].jumpUrl);
+//                Navigator.of(context).pushNamed(AppRoute.WEB_PAGE,
+//                    arguments: bannerList[index].jumpUrl);
               }
               break;
           }
@@ -312,46 +323,46 @@ class _AppState extends State<HomePage>
       itemCount: bannerList.length,
       pagination: SwiperCustomPagination(
           builder: (BuildContext context, SwiperPluginConfig config) {
-        return Stack(
-          alignment: Alignment.center,
-          children: <Widget>[
-            Positioned(
-              bottom: 7,
-              child: Row(
-                children: <Widget>[
-                  Container(
-                    width: 20,
-                    height: 2,
-                    color: config.activeIndex == 0
-                        ? Colors.white
-                        : Color(0x4dffffff),
+            return Stack(
+              alignment: Alignment.center,
+              children: <Widget>[
+                Positioned(
+                  bottom: 7,
+                  child: Row(
+                    children: <Widget>[
+                      Container(
+                        width: 20,
+                        height: 2,
+                        color: config.activeIndex == 0
+                            ? Colors.white
+                            : Color(0x4dffffff),
+                      ),
+                      SizedBox(
+                        width: 5,
+                      ),
+                      Container(
+                        width: 20,
+                        height: 2,
+                        color: config.activeIndex == 1
+                            ? Colors.white
+                            : Color(0x4dffffff),
+                      ),
+                      SizedBox(
+                        width: 5,
+                      ),
+                      Container(
+                        width: 20,
+                        height: 2,
+                        color: config.activeIndex == 2
+                            ? Colors.white
+                            : Color(0x4dffffff),
+                      )
+                    ],
                   ),
-                  SizedBox(
-                    width: 5,
-                  ),
-                  Container(
-                    width: 20,
-                    height: 2,
-                    color: config.activeIndex == 1
-                        ? Colors.white
-                        : Color(0x4dffffff),
-                  ),
-                  SizedBox(
-                    width: 5,
-                  ),
-                  Container(
-                    width: 20,
-                    height: 2,
-                    color: config.activeIndex == 2
-                        ? Colors.white
-                        : Color(0x4dffffff),
-                  )
-                ],
-              ),
-            )
-          ],
-        );
-      }),
+                )
+              ],
+            );
+          }),
       control: null,
       loop: true,
       //是否循环
@@ -387,12 +398,41 @@ class _AppState extends State<HomePage>
                     style: TextStyle(fontSize: 12, color: "#ff393649".color()),
                   ),
                 ],
-              ).setSizedBox(width: 54.5),
+              ).setSizedBox(width: 54.5).setGestureDetector(onTap: () {
+//                if (!homeIconList[i].usable) {
+//                  homeIconList[i].unusableTip.toast();
+//                  return;
+//                }
+                switch (homeIconList[i].type) {
+                  case 1:
+                    switch (homeIconList[i].resourceId) {
+                      case 1:
+                      // 会员商城
+                        Navigator.of(context).pushNamed(AppRoute.VIP_SHOP_PAGE);
+                        break;
+                      case 2:
+                      // 禾卡专属
+                        Navigator.of(context)
+                            .pushNamed(AppRoute.HE_KA_ZHUAN_SHU);
+                        break;
+                      case 3:
+                      // 话费充值
+                        Navigator.of(context)
+                            .pushNamed(AppRoute.PREPAID_REFILL_PAGE);
+                        break;
+                    }
+                    break;
+                  case 2:
+                    Navigator.of(context).pushNamed(AppRoute.VIP_SHOP_PAGE,
+                        arguments: homeIconList[i].resourceId);
+                    break;
+                }
+              }),
               SizedBox(
                 width: i == homeIconList.length - 1
                     ? 0
                     : (context.getSrnW() - (54.5 * homeIconList.length) - 40) /
-                        (homeIconList.length - 1),
+                    (homeIconList.length - 1),
               ),
             ],
           );
@@ -428,6 +468,11 @@ class _AppState extends State<HomePage>
                   Text(
                     "进入专区",
                     style: TextStyle(fontSize: 12, color: "#ffa5a3ac".color()),
+                  ).setGestureDetector(
+                      onTap: () {
+                        Navigator.of(context).pushNamed(
+                            AppRoute.PREFECTURE_PAGE, arguments: areaList[i].id);
+                      }
                   ),
                   Image.asset(
                     Config.DETAIL_LIGHT,
@@ -457,21 +502,22 @@ class _AppState extends State<HomePage>
                               ),
                               CachedNetworkImage(
                                 imageUrl:
-                                    areaList[i].pageVO.results[index].logo,
+                                areaList[i].pageVO.results[index].logo,
                                 width: (ctx.getSrnW() - 52) / 2,
                                 height: 121,
                                 fit: BoxFit.cover,
-                                placeholder: (ctx, url) => Image.asset(
-                                  Config.RIGHT_COVER,
-                                  width: (context.getSrnW() - 52) / 2,
-                                  height: 121,
-                                  fit: BoxFit.fill,
-                                ),
+                                placeholder: (ctx, url) =>
+                                    Image.asset(
+                                      Config.RIGHT_COVER,
+                                      width: (context.getSrnW() - 52) / 2,
+                                      height: 121,
+                                      fit: BoxFit.fill,
+                                    ),
                                 fadeOutDuration: Duration(milliseconds: 50),
                               ).setClipRRect(4.0),
                               SizedBox(
                                 width: index ==
-                                        areaList[i].pageVO.results.length - 1
+                                    areaList[i].pageVO.results.length - 1
                                     ? 20
                                     : 0,
                               ),
@@ -480,7 +526,12 @@ class _AppState extends State<HomePage>
                           getAreaListItem(
                               areaList[i].pageVO.results[index], index == 0)
                         ],
-                      );
+                      ).setGestureDetector(onTap: () {
+                        Navigator.of(context).pushNamed(
+                            AppRoute.RIGHT_DETAIL_PAGE,
+                            arguments:
+                            areaList[i].pageVO.results[index].id);
+                      });
                     }),
               )
             ],
@@ -581,7 +632,7 @@ class _AppState extends State<HomePage>
     FileUtils.getStringFromTemp('banner_info_data.txt', (s) {
       List list = json.decode(s);
       List<BannerData1> dataList =
-          list.map((data) => BannerData1.fromJson(data)).toList();
+      list.map((data) => BannerData1.fromJson(data)).toList();
       setState(() {
         bannerList = dataList;
       });
@@ -590,14 +641,14 @@ class _AppState extends State<HomePage>
     FileUtils.getStringFromTemp('home_icon_data.txt', (s) {
       List list = json.decode(s);
       List<HomeIconData> dataList =
-          list.map((data) => HomeIconData.fromJson(data)).toList();
+      list.map((data) => HomeIconData.fromJson(data)).toList();
       setHomeIconState(dataList);
     });
 
     FileUtils.getStringFromTemp('home_label_data.txt', (s) {
       List list = json.decode(s);
       List<HomeLabelData> dataList =
-          list.map((data) => HomeLabelData.fromJson(data)).toList();
+      list.map((data) => HomeLabelData.fromJson(data)).toList();
       setState(() {
         areaList = dataList;
       });
@@ -688,7 +739,7 @@ Widget getDeletePriceItem(Result result, bool isFirst) {
   return Column(
     children: <Widget>[
       SizedBox(
-        height: 12,
+        height: 11,
       ),
       Text(
         result.name,

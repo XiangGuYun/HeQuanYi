@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:wobei/bean/LoginData.dart';
+import 'package:wobei/bean/Pair.dart';
 import 'package:wobei/common/Global.dart';
 import 'package:wobei/constant/AppRoute.dart';
 import 'package:wobei/constant/Config.dart';
@@ -91,12 +92,25 @@ class _AppState extends State<App>
 
   String textGetVCode = '获取验证码';
 
-  Uint8List list = null;
+  Uint8List list;
+
+  final focusNode1 = FocusNode();
+
+  final focusNode2 = FocusNode();
 
   @override
   void initState() {
     super.initState();
     setStatusBarColor(true, Colors.transparent);
+
+    bus.on('LoginPage', (arg) {
+      switch((arg as Pair).first){
+        case 'closeKB':
+          focusNode1.unfocus();
+          focusNode2.unfocus();
+          break;
+      }
+    });
   }
 
   @override
@@ -136,12 +150,10 @@ class _AppState extends State<App>
                     Text(
                       '《用户协议》',
                       style: TextStyle(fontSize: 12, color: Color(0xFF5C7099)),
-                    ).setGestureDetector(
-                        onTap: () {
-                          Navigator.of(context).pushNamed(AppRoute.WEB_PAGE,
-                              arguments: "https://h5.hbei.vip/app/user_agreement");
-                        }
-                    ),
+                    ).setGestureDetector(onTap: () {
+                      Navigator.of(context).pushNamed(AppRoute.WEB_PAGE,
+                          arguments: "https://h5.hbei.vip/app/user_agreement");
+                    }),
                     Text(
                       '和',
                       style: TextStyle(fontSize: 12, color: Color(0xFFC0C4CC)),
@@ -149,12 +161,10 @@ class _AppState extends State<App>
                     Text(
                       '《隐私政策》',
                       style: TextStyle(fontSize: 12, color: Color(0xFF5C7099)),
-                    ).setGestureDetector(
-                        onTap: () {
-                          Navigator.of(context).pushNamed(AppRoute.WEB_PAGE,
-                              arguments: "https://h5.hbei.vip/app/PrivacyPolicy");
-                        }
-                    ),
+                    ).setGestureDetector(onTap: () {
+                      Navigator.of(context).pushNamed(AppRoute.WEB_PAGE,
+                          arguments: "https://h5.hbei.vip/app/PrivacyPolicy");
+                    }),
                   ],
                 ).setPadding1(bottom: 20)
               ],
@@ -188,18 +198,15 @@ class _AppState extends State<App>
                 style: TextStyle(fontSize: 18, color: Color(0xFF303133)),
               ).setSizedBox(width: 56.5, height: 28),
               TextField(
+                focusNode: focusNode1,
                 textInputAction: TextInputAction.done,
                 keyboardType: TextInputType.number,
                 style: TextStyle(fontSize: 18, color: Color(0xFF303133)),
                 //监听输入事件
                 onChanged: (value) {
                   valuePhoneNumber = value;
-                  if (valuePassword
-                      .toString()
-                      .length >= 6 &&
-                      valuePhoneNumber
-                          .toString()
-                          .length == 11) {
+                  if (valuePassword.toString().length >= 6 &&
+                      valuePhoneNumber.toString().length == 11) {
                     setState(() {
                       buttonColor = Config.BLACK_303133;
                     });
@@ -215,13 +222,13 @@ class _AppState extends State<App>
                 cursorColor: Colors.black,
                 //装饰
                 decoration: InputDecoration(
-                  //设置提示文字
+                    //设置提示文字
                     hintText: "请输入手机号",
                     hintStyle:
-                    TextStyle(fontSize: 16, color: Color(0xFFC0C4CC)),
+                        TextStyle(fontSize: 16, color: Color(0xFFC0C4CC)),
                     //设置边框
                     border: InputBorder.none //去除
-                ),
+                    ),
               )
                   .setSizedBox(width: context.getSrnW() - 136.5)
                   .setPadding1(bottom: 5),
@@ -236,8 +243,11 @@ class _AppState extends State<App>
               Stack(
                 children: <Widget>[
                   TextField(
+                    focusNode: focusNode2,
                     style: TextStyle(fontSize: 18, color: Color(0xFF303133)),
-                    keyboardType: isPasswordLogin?TextInputType.visiblePassword:TextInputType.number,
+                    keyboardType: isPasswordLogin
+                        ? TextInputType.visiblePassword
+                        : TextInputType.number,
                     //监听输入事件
                     onChanged: (value) {
                       if (isPasswordLogin) {
@@ -248,15 +258,9 @@ class _AppState extends State<App>
                       print('valueVerificationCode is $valueVerificationCode');
 
                       if ((isPasswordLogin
-                          ? valuePassword
-                          .toString()
-                          .length >= 6
-                          : valueVerificationCode
-                          .toString()
-                          .length == 4) &&
-                          valuePhoneNumber
-                              .toString()
-                              .length == 11) {
+                              ? valuePassword.toString().length >= 6
+                              : valueVerificationCode.toString().length == 4) &&
+                          valuePhoneNumber.toString().length == 11) {
                         setState(() {
                           buttonColor = Config.BLACK_303133;
                         });
@@ -274,13 +278,13 @@ class _AppState extends State<App>
                     cursorColor: Colors.black,
                     //装饰
                     decoration: InputDecoration(
-                      //设置提示文字
+                        //设置提示文字
                         hintText: hintOfSecondTextField,
                         hintStyle:
-                        TextStyle(fontSize: 16, color: Color(0xFFC0C4CC)),
+                            TextStyle(fontSize: 16, color: Color(0xFFC0C4CC)),
                         //设置边框
                         border: InputBorder.none //去除
-                    ),
+                        ),
                   )
                       .setSizedBox(width: context.getSrnW() - 80)
                       .setPadding1(bottom: 5),
@@ -291,11 +295,9 @@ class _AppState extends State<App>
                           fontSize: 16,
                           color: Color(0xff909399),
                           fontWeight: FontWeight.w600),
-                    )
-                        .setGestureDetector(onTap: () {
+                    ).setGestureDetector(onTap: () {
                       _onGetVCodeClick(context);
-                    })
-                        .setVisible2(getVerificationCodeVisible),
+                    }).setVisible2(getVerificationCodeVisible),
                     right: 0,
                     bottom: 18.5,
                   )
@@ -333,8 +335,8 @@ class _AppState extends State<App>
           }, onTapUp: (details) {
             setState(() {
               buttonColor = (valuePhoneNumber.length != 11 || isPasswordLogin
-                  ? valuePassword.length < 6
-                  : valueVerificationCode.length != 4)
+                      ? valuePassword.length < 6
+                      : valueVerificationCode.length != 4)
                   ? Config.BTN_ENABLE_FALSE
                   : Config.BLACK_303133;
             });
@@ -349,7 +351,16 @@ class _AppState extends State<App>
                 valueVerificationCode, (data) {
               Global.prefs.setString('token', data.token);
               ToastUtils.show("登录成功");
-              bus.emit('Scaffold', 'login');
+              switch (Global.routeLogin) {
+                case AppRoute.SCAFFOLD_PAGE:
+                  bus.emit('Scaffold', 'login');
+                  break;
+                case AppRoute.MY_ORDER_PAGE:
+                  Navigator.of(context).pushNamedAndRemoveUntil(
+                      AppRoute.MY_ORDER_PAGE,
+                      ModalRoute.withName(AppRoute.LOGIN));
+                  break;
+              }
             });
           }),
           SizedBox(
@@ -364,26 +375,26 @@ class _AppState extends State<App>
             style: TextStyle(color: Color(0xff303133), fontSize: 14),
           ).setAlign(Alignment.center).setPadding(20).setGestureDetector(
               onTap: () {
-                setState(() {
-                  if (loginMethod == '验证码登录') {
-                    //登录方式变为验证码登录
-                    loginMethod = '密码登录';
-                    forgetPasswordVisible = false;
-                    hintOfSecondTextField = '请输入验证码';
-                    getVerificationCodeVisible = true;
-                    hintVisible = true;
-                    isPasswordLogin = false;
-                  } else {
-                    //登录方式变为密码登录
-                    loginMethod = '验证码登录';
-                    forgetPasswordVisible = true;
-                    hintOfSecondTextField = '请输入密码';
-                    getVerificationCodeVisible = false;
-                    hintVisible = false;
-                    isPasswordLogin = true;
-                  }
-                });
-              }),
+            setState(() {
+              if (loginMethod == '验证码登录') {
+                //登录方式变为验证码登录
+                loginMethod = '密码登录';
+                forgetPasswordVisible = false;
+                hintOfSecondTextField = '请输入验证码';
+                getVerificationCodeVisible = true;
+                hintVisible = true;
+                isPasswordLogin = false;
+              } else {
+                //登录方式变为密码登录
+                loginMethod = '验证码登录';
+                forgetPasswordVisible = true;
+                hintOfSecondTextField = '请输入密码';
+                getVerificationCodeVisible = false;
+                hintVisible = false;
+                isPasswordLogin = true;
+              }
+            });
+          }),
         ],
       );
     } else if (viewType == ViewType.PASSWORD_LOGIN) {
@@ -432,7 +443,7 @@ class _AppState extends State<App>
           // 非第一次登录，弹出图片验证码对话框
           Req.getPicVerificationCode(valuePhoneNumber).then((bytes) {
             TuPianYanZhengMaDialog(
-                ctx: context, phone: valuePhoneNumber, bytes: bytes)
+                    ctx: context, phone: valuePhoneNumber, bytes: bytes)
                 .show(context);
           });
         }
@@ -440,6 +451,7 @@ class _AppState extends State<App>
     }
   }
 
+  /// 防止错误弹出键盘
   @override
-  bool get wantKeepAlive => true;
+  bool get wantKeepAlive => false;
 }

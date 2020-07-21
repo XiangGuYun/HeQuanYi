@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:wobei/my_lib/utils/ToastUtils.dart';
 
 ///通用输入框
 class EditText extends StatefulWidget {
@@ -53,14 +54,17 @@ class EditText extends StatefulWidget {
 
   final FocusNode focusNode;
 
+  final Function onSubmitted;
+
   EditText(this.width,
       {Key key,
       this.height = 36,
       this.textSize = 14.0,
-      this.controller = null,
+      this.controller,
+      this.onSubmitted,
       this.hint,
       this.maxLength = 20,
-      this.onChanged = null,
+      this.onChanged,
       this.inputType = TextInputType.text,
       this.action = TextInputAction.go,
       this.hintSize = 14.0,
@@ -69,7 +73,7 @@ class EditText extends StatefulWidget {
       this.textColor = const Color(0xFF393649),
       this.margin = const EdgeInsets.all(0),
       this.padding = const EdgeInsets.all(0),
-      this.focusNode = null,
+      this.focusNode,
       this.maxLines = 1})
       : super(key: key);
 
@@ -86,6 +90,7 @@ class _EditTextState extends State<EditText> {
       margin: widget.margin,
       padding: widget.padding,
       child: TextField(
+        onSubmitted: widget.onSubmitted,
         controller: widget.controller,
         focusNode: widget.focusNode,
         textInputAction: widget.action,

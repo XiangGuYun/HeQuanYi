@@ -4,12 +4,16 @@ import 'package:flutter/physics.dart';
 import 'package:frame_animate_widget/frame_animate_widget.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:wobei/bean/MeData.dart';
+import 'package:wobei/bean/SearchWord.dart';
 import 'package:wobei/common/Global.dart';
 import 'package:wobei/constant/AppRoute.dart';
 import 'package:wobei/enum/JumpType.dart';
 import 'package:wobei/my_lib/RouteAnim.dart';
 import 'package:wobei/page/WebPage.dart';
 import 'package:wobei/page/home/CityListPage.dart';
+import 'package:wobei/page/home/HeKaExclusivePage.dart';
+import 'package:wobei/page/home/PrefecturePage.dart';
+import 'package:wobei/page/home/PrepaidRefillPage.dart';
 import 'package:wobei/page/home/SearchPage.dart';
 import 'package:wobei/page/intro/ADPage.dart';
 import 'package:wobei/page/intro/WelcomePage.dart';
@@ -32,6 +36,9 @@ import 'package:wobei/page/me/RedPacketPage.dart';
 import 'package:wobei/page/me/RightExchangeTicketPage.dart';
 import 'package:wobei/page/me/SettingsPage.dart';
 import 'package:wobei/page/me/VipExchangeCodePage.dart';
+import 'package:wobei/page/order/MyOrderPage.dart';
+import 'package:wobei/page/order/ProductDetailPage.dart';
+import 'package:wobei/page/order/VipShopPage.dart';
 import 'package:wobei/page/pay/RightPayPage.dart';
 import 'package:wobei/page/pay/SetPayPwdPage.dart';
 import 'package:wobei/page/right/RightClassPage.dart';
@@ -55,6 +62,19 @@ class BaseApp extends StatefulWidget {
 class _BaseAppState extends State<BaseApp> {
   //配置路由
   var routes = {
+    AppRoute.PREFECTURE_PAGE: (context, {arguments}) => PrefecturePage(
+          areaId: arguments,
+        ),
+    AppRoute.PREPAID_REFILL_PAGE: (context) => PrepaidRefillPage(),
+    AppRoute.HE_KA_ZHUAN_SHU: (context) => HeKaExclusivePage(),
+    AppRoute.MY_ORDER_PAGE: (context, {arguments}) => MyOrderPage(),
+    AppRoute.PRODUCT_DETAIL_PAGE: (context, {arguments}) => ProductDetailPage(
+          goodsId: arguments,
+        ),
+    AppRoute.VIP_SHOP_PAGE: (context, {arguments}) => VipShopPage(
+          categoryId: arguments,
+        ),
+    AppRoute.SCAFFOLD_PAGE: (context) => ScaffoldPage(),
     AppRoute.RIGHT_PAY_PAGE: (context, {arguments}) =>
         RightPayPage(id: arguments),
     AppRoute.RIGHT_CLASS_PAGE: (context) => RightClassPage(),
@@ -109,7 +129,7 @@ class _BaseAppState extends State<BaseApp> {
     AppRoute.HOME_PAGE: (context) => ScaffoldPage(),
     AppRoute.LOGIN: (context) => LoginPage(),
     // 注意：SearchPage中的arguments如果可选参数，那么这里的arguments必须也是可选参数
-    AppRoute.SEARCH_PAGE: (BuildContext context, {List<String> arguments}) =>
+    AppRoute.SEARCH_PAGE: (BuildContext context, {SearchWord arguments}) =>
         SearchPage(arguments: arguments),
     AppRoute.PERSONAL_INFO: (context, {MeData arguments}) => PersonalInfoPage(
           arguments: arguments,
@@ -227,7 +247,8 @@ class _BaseAppState extends State<BaseApp> {
           color: Colors.white,
           onGenerateRoute: (RouteSettings settings) {
             final String name = settings.name;
-            print('======================================='+name);
+            Global.stackNumber += 1;
+            print('=======================================' + name);
             final Function pageContentBuilder = this.routes[name];
             if (pageContentBuilder != null) {
               if (settings.arguments != null) {
@@ -315,7 +336,7 @@ class MainApp extends StatelessWidget {
     AppRoute.HOME_PAGE: (context) => ScaffoldPage(),
     AppRoute.LOGIN: (context) => LoginPage(),
     // 注意：SearchPage中的arguments如果可选参数，那么这里的arguments必须也是可选参数
-    AppRoute.SEARCH_PAGE: (BuildContext context, {List<String> arguments}) =>
+    AppRoute.SEARCH_PAGE: (BuildContext context, {SearchWord arguments}) =>
         SearchPage(arguments: arguments),
     AppRoute.PERSONAL_INFO: (context, {MeData arguments}) => PersonalInfoPage(
           arguments: arguments,

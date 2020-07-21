@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:wobei/bean/ChangeCardListData.dart';
 import 'package:wobei/constant/Config.dart';
 import 'package:wobei/page/dialog/BaseDialog.dart';
+import '../../my_lib/extension/BaseExtension.dart';
 
 ///********************************************************************************************
 ///
@@ -102,7 +103,7 @@ class LingQianDuiHuanDialog extends BaseDialog {
                         child: GestureDetector(
                           child: Text('再想想', style: TextStyle(fontSize: 16, color: Color(0xffa5a3ac)),),
                           onTap: (){
-                            Navigator.of(context).pop();
+                            context.pop();
                           },
                           behavior: HitTestBehavior.opaque,
                         ),

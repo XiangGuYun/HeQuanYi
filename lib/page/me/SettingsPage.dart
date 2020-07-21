@@ -7,6 +7,7 @@ import 'package:wobei/my_lib/base/BaseState.dart';
 import 'package:wobei/page/dialog/QuitLoginDialog.dart';
 import 'package:wobei/widget/BlackButton.dart';
 import 'package:wobei/widget/TitleBar.dart';
+import '../../my_lib/extension/BaseExtension.dart';
 
 ///********************************************************************************************
 ///
@@ -91,13 +92,13 @@ class _SettingsPageState extends State<SettingsPage> with BaseUtils {
 //      bp { m w CLEAR_ME_LIST }
 //      bp { m w CLEAR_BADGE_NUMBER }
       // 清空本地数据
-      Global.prefs.setString('token', '');
+      Global.prefs.setString('token', null);
       // 执行退出操作
       bus.emit('Scaffold', 'unlogin');
       // 退出对话框
-      Navigator.of(context).pop();
+      context.pop();
       // 退出设置页面
-      Navigator.of(context).pop();
+      context.pop();
     },).show(context);
   }
 

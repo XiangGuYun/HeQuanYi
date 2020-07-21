@@ -6,6 +6,7 @@ import 'package:dio/dio.dart';
 import 'package:wobei/bean/BannerData1.dart';
 import 'package:wobei/bean/BuyVipData.dart';
 import 'package:wobei/bean/CardTicketDetailData.dart';
+import 'package:wobei/bean/CategoryData.dart';
 import 'package:wobei/bean/ChangeCardListData.dart';
 import 'package:wobei/bean/DealDetailData.dart';
 import 'package:wobei/bean/DealRecordData.dart';
@@ -19,22 +20,28 @@ import 'package:wobei/bean/HomeLabelData.dart';
 import 'package:wobei/bean/LoginData.dart';
 import 'package:wobei/bean/MeData.dart';
 import 'package:wobei/bean/MyCardData.dart';
+import 'package:wobei/bean/MyOrderData.dart';
 import 'package:wobei/bean/PayInfoData.dart';
+import 'package:wobei/bean/ProductDetailData.dart';
+import 'package:wobei/bean/ProductPageData.dart';
+import 'package:wobei/bean/ReChargeData.dart';
 import 'package:wobei/bean/RedPacketData.dart';
 import 'package:wobei/bean/RightClassData.dart';
-import 'package:wobei/bean/RightClassFilteredData.dart';
 import 'package:wobei/bean/RightDetailData.dart';
 import 'package:wobei/bean/RightSubPageData.dart';
 import 'package:wobei/bean/SearchWord.dart';
 import 'package:wobei/common/Global.dart';
 import 'package:wobei/constant/URL.dart';
+import 'package:wobei/enum/MyOrderType.dart';
 import 'package:wobei/my_lib/utils/NetUtils.dart';
 import 'package:wobei/my_lib/utils/ToastUtils.dart';
 import 'package:wobei/page/me/MessageCenterData.dart';
 import 'package:wobei/plugin/LogPlugin.dart';
 
 ///*****************************************************************************
+///
 /// 管理所有的接口请求
+///
 ///*****************************************************************************
 class Req {
   ///---------------------------------------------------------------------------
@@ -513,7 +520,7 @@ class Req {
       pageNum = 1,
       commonType = '0',
       typeId = '',
-      distanceType = '0',
+      distanceType = '0', //
       Function callback}) {
     var params = Map<String, String>();
     params['itemGroupLevelIds'] = itemGroupLevelIds;
@@ -571,7 +578,7 @@ class Req {
   ///---------------------------------------------------------------------------
   /// 取消支付权益订单
   ///---------------------------------------------------------------------------
-  static void cancelPayRightOrder(int orderId, Function callback) {
+  static void cancelPayRightOrder(String orderId, Function callback) {
     NetUtils.post(URL.CANCEL_DUI_HUAN,
         Map<String, String>()..['orderId'] = orderId.toString(), (c, m, s, d) {
       callback(d);
@@ -581,7 +588,8 @@ class Req {
   ///---------------------------------------------------------------------------
   /// 获取购买权益或会员的支付页面信息
   ///---------------------------------------------------------------------------
-  static void getPayInfo(int id, Function callback, {bool isRightPage = true}) {
+  static void getPayInfo(String id, Function callback,
+      {bool isRightPage = true}) {
     final map = Map<String, String>();
     if (isRightPage) {
       map['orderId'] = id.toString();
@@ -590,18 +598,150 @@ class Req {
     }
     NetUtils.post(isRightPage ? URL.RIGHT_PAY_INFO : URL.VIP_PAY_INFO, map,
         (c, m, s, d) {
-          callback(PayInfoData.fromJson(d));
-        });
+      callback(PayInfoData.fromJson(d));
+    });
   }
 
-/**
- * 获取支付页面信息
- */
-//  fun getPayInfo(payType: Int, orderId: Int, callback: (data: PayInfo) -> Unit) {
-//  OK.post<PayInfo>(if (payType == Constant.PAY_RIGHT) URL.RIGHT_PAY_INFO
-//  else URL.VIP_PAY_INFO, {
-//  callback.invoke(it)U
-//  }, (if (payType == Constant.PAY_RIGHT) "orderId" else "vipCardOrderId") to orderId.toString())
-//  }
+  ///---------------------------------------------------------------------------
+  /// 创建订单，获取订单ID
+  ///---------------------------------------------------------------------------
+  static void createRightOrder(int id, Function callback,
+      {bool isEnterprise = false}) {
+    final map = Map<String, String>();
+    if (isEnterprise) {
+      map['payEntrance'] = '2';
+    } else {
+      map['payEntrance'] = '1';
+    }
+    map['itemId'] = id.toString();
+    NetUtils.post(URL.DUI_HUAN, map, (c, m, s, d) {
+      callback(d['orderId'].toString());
+    });
+  }
+
+  ///---------------------------------------------------------------------------
+  /// 获取会员商城商品类目
+  ///---------------------------------------------------------------------------
+  static void getVipShopCategory(Function callback) {
+    NetUtils.post(URL.SHANG_PIN_LEI_MU, Map<String, String>(), (c, m, s, d) {
+      List list = json.decode(json.encode(d));
+      List<CategoryData> dataList =
+          list.map((e) => CategoryData.fromJson(e)).toList();
+      callback(dataList, json.encode(d));
+    });
+  }
+
+  ///---------------------------------------------------------------------------
+  /// 获取会员商城-商品详情
+  ///---------------------------------------------------------------------------
+  static void getVipShopDetail(int goodsId, Function callback) {
+    NetUtils.post(URL.SHANG_PIN_XIANG_QING,
+        Map<String, String>()..['goodsId'] = goodsId.toString(), (c, m, s, d) {
+      callback(ProductDetailData.fromJson(d), json.encode(d));
+    });
+  }
+
+  ///---------------------------------------------------------------------------
+  /// 获取会员商城-商品分页
+  ///---------------------------------------------------------------------------
+  static void getVipShopPage(int category1, Function callback, {pageNum = 1}) {
+    final map = Map<String, String>();
+    map['category1'] = category1.toString();
+    map['pageNum'] = pageNum.toString();
+    NetUtils.post(URL.SHANG_PIN_FEN_YE, map, (c, m, s, d) {
+      callback(ProductPageData.fromJson(d), json.encode(d));
+    });
+  }
+
+  ///---------------------------------------------------------------------------
+  /// 获取会员商城-我的订单
+  ///---------------------------------------------------------------------------
+  static void getMyOrder(Function callback,
+      [MyOrderType type = MyOrderType.QUAN_BU, int pageNum = 1]) {
+    final map = Map<String, String>();
+    if (type != MyOrderType.QUAN_BU) {
+      if (type == MyOrderType.DAI_FU_KUAN) {
+        map['status'] = '10';
+      } else if (type == MyOrderType.DAI_FA_HUO) {
+        map['status'] = '80';
+      } else if (type == MyOrderType.YI_WAN_CHENG) {
+        map['status'] = '85';
+      } else if (type == MyOrderType.TUI_KUAN) {
+        map['status'] = '15';
+      }
+    }
+    map['pageNum'] = pageNum.toString();
+    NetUtils.post(URL.WO_DE_DING_DAN, map, (c, m, s, d) {
+      callback(MyOrderData.fromJson(d), json.encode(d));
+    });
+  }
+
+  ///---------------------------------------------------------------------------
+  /// 获取禾卡专属数据
+  ///---------------------------------------------------------------------------
+  static void getHeKaExclusive(Function callback, [int pageNum = 1]) {
+    NetUtils.post(
+        URL.HE_KA_EXCLUSIVE,
+        Map<String, String>()
+          ..['pageNum'] = pageNum.toString()
+          ..['vipId'] = '1', (c, m, s, d) {
+      callback(RightSubPageData.fromJson(d), json.encode(d));
+    });
+  }
+
+  ///---------------------------------------------------------------------------
+  /// 获取充值提示
+  ///---------------------------------------------------------------------------
+  static void getRechargeTip(Function callback) {
+    NetUtils.post(URL.RECHARGE_TIP, Map<String, String>(), (c, m, s, d) {
+      callback(d['remark']);
+    });
+  }
+
+  ///---------------------------------------------------------------------------
+  /// 查看话费充值选项卡
+  ///---------------------------------------------------------------------------
+  static void checkTheCallRechargeTAB(Function callback) {
+    NetUtils.post(URL.CALL_RECHARGE_TAB, Map<String, String>(), (c, m, s, d) {
+      List list = json.decode(json.encode(d));
+      List<RechargeData> dataList =
+          list.map((e) => RechargeData.fromJson(e)).toList();
+      callback(dataList, json.encode(d));
+    });
+  }
+
+  ///---------------------------------------------------------------------------
+  /// 搜索
+  ///---------------------------------------------------------------------------
+  static void search(Function callback, {String searchWord, int pageNum = 1}) {
+    final map = Map<String, String>();
+    map['searchWord'] = searchWord;
+    map['pageNum'] = pageNum.toString();
+    NetUtils.post(URL.SEARCH, Map<String, String>(), (c, m, s, d) {
+      callback(RightSubPageData.fromJson(d));
+    });
+  }
+
+  ///---------------------------------------------------------------------------
+  /// 专区页
+  ///---------------------------------------------------------------------------
+  static void getPrefecturePage(int id, Function callback,
+      {commonType = '0', typeId = '', distanceType = '0', pageNum = 1}) {
+    var params = Map<String, String>();
+    params['id'] = id.toString();
+    params['pageNum'] = pageNum.toString();
+    params['latitude'] = Global.prefs.getString('lat');
+    params['longitude'] = Global.prefs.getString('lon');
+    params['commonType'] = '0';
+    if (typeId != '') {
+      params['typeId'] = typeId;
+    }
+    params['distanceType'] = distanceType;
+
+    NetUtils.post(URL.SHOU_YE_BIAO_QIAN_FEN_YE, params, (c, m, s, d) {
+      callback(RightSubPageData.fromJson(d), json.encode(d));
+    });
+
+  }
 
 }

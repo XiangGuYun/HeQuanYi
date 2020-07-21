@@ -60,7 +60,7 @@ class CancelPayDialog extends BaseDialog {
                           ),
                         ),
                         onTap: () {
-                          Navigator.of(context).pop();
+                          context.pop();
                         },
                       ),
                     ),
